@@ -20,5 +20,13 @@ func NewCommand() *cli.Command {
 			return cli.Exit(fmt.Sprintf("incorrect usage: %v", err), 1)
 		},
 		ArgsUsage: "",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:        "format",
+				Aliases:     []string{"f"},
+				Usage:       "output format",
+				DefaultText: "\"stylish\"",
+			},
+		},
 	}
 }

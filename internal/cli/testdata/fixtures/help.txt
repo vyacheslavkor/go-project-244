@@ -1,0 +1,8 @@
+NAME:
+   gendiff - Compares two configuration files and shows a difference.
+
+USAGE:
+   gendiff [global options]
+
+GLOBAL OPTIONS:
+   --help, -h  show help

@@ -1,0 +1,74 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+
+  settings:
+    gofumpt:
+      extra-rules: true
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+
+    - gosec
+    - prealloc
+    - perfsprint
+    - copyloopvar
+
+    - cyclop
+    - gocritic
+    - revive
+    - nakedret
+    - nolintlint
+    - bodyclose
+    - noctx
+    - misspell
+    - funlen
+    - dupl
+    - whitespace
+
+  settings:
+    cyclop:
+      max-complexity: 10
+      package-average: 0.0
+
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+      disabled-checks:
+        - hugeParam
+    revive:
+      confidence: 0.8
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+      exclude-functions:
+        - fmt.Fprintln
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+    funlen:
+      lines: 100
+      statements: 50
+
+  exclusions:
+    rules:
+      - linters:
+          - errcheck
+          - gosec
+        source: ShowAppHelp

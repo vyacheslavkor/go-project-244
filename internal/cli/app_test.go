@@ -53,7 +53,7 @@ func TestNewCommand(t *testing.T) {
 
 func getHelp(t *testing.T) string {
 	t.Helper()
-	helpPath := filepath.Join("testdata", "fixtures", "help.txt")
+	helpPath := filepath.Join("testdata", "fixture", "help.txt")
 	helpContent, err := os.ReadFile(filepath.Clean(helpPath))
 	require.NoError(t, err)
 

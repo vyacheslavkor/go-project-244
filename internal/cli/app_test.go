@@ -33,6 +33,11 @@ func TestNewCommand(t *testing.T) {
 			args: []string{filepath.Join(getFixturePath(), "file1.json"), filepath.Join(getFixturePath(), "file2.json")},
 			want: string(expected),
 		},
+		{
+			name: "plain yml files, stylish format",
+			args: []string{filepath.Join(getFixturePath(), "file1.yml"), filepath.Join(getFixturePath(), "file2.yml")},
+			want: string(expected),
+		},
 	}
 
 	for _, tc := range testCases {

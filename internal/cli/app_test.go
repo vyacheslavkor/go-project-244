@@ -15,6 +15,9 @@ import (
 )
 
 func TestNewCommand(t *testing.T) {
+	expected, err := os.ReadFile(filepath.Join(getFixturePath(), "expected.txt"))
+	require.NoError(t, err)
+
 	testCases := []struct {
 		name string
 		args []string
@@ -24,6 +27,11 @@ func TestNewCommand(t *testing.T) {
 			name: "help",
 			args: []string{"--help"},
 			want: getHelp(t),
+		},
+		{
+			name: "plain json files, stylish format",
+			args: []string{filepath.Join(getFixturePath(), "file1.json"), filepath.Join(getFixturePath(), "file2.json")},
+			want: string(expected),
 		},
 	}
 
@@ -53,9 +61,13 @@ func TestNewCommand(t *testing.T) {
 
 func getHelp(t *testing.T) string {
 	t.Helper()
-	helpPath := filepath.Join("testdata", "fixture", "help.txt")
+	helpPath := filepath.Join(getFixturePath(), "help.txt")
 	helpContent, err := os.ReadFile(filepath.Clean(helpPath))
 	require.NoError(t, err)
 
 	return strings.TrimSpace(string(helpContent))
+}
+
+func getFixturePath() string {
+	return filepath.Join("testdata", "fixture")
 }

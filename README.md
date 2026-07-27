@@ -1,2 +1,2 @@
 ### Hexlet tests and linter status:
-[![Actions Status](https://github.com/vyacheslavkor/go-project-244/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/vyacheslavkor/go-project-244/actions)
+[![Actions Status](https://github.com/vyacheslavkor/go-project-244/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/vyacheslavkor/go-project-244/actions) [![Actions Status](https://github.com/vyacheslavkor/go-project-244/actions/workflows/ci.yml/badge.svg)](https://github.com/vyacheslavkor/go-project-244/actions) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=vyacheslavkor_go-project-244&metric=coverage)](https://sonarcloud.io/summary/new_code?id=vyacheslavkor_go-project-244)

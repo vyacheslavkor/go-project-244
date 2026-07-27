@@ -13,6 +13,8 @@ type formatParser interface {
 
 var extHandlers = map[string]formatParser{
 	".json": &jsonParser{},
+	".yml":  &yamlParser{},
+	".yaml": &yamlParser{},
 }
 
 func ParseFiles(f1, f2 string) (parsed1, parsed2 map[string]any, err error) {

@@ -23,6 +23,10 @@ var (
 	ErrPathHasNoExtension   = errors.New("cannot extract extension from path")
 	ErrDifferentFileFormats = errors.New("files have different formats")
 	ErrUnsupportedExtension = errors.New("unsupported extension")
+	ErrNotRegularFile       = errors.New("file is not a regular file")
+	ErrFileIsEmpty          = errors.New("file is empty")
+	ErrFailedToParseFile    = errors.New("failed to parse file")
+	ErrFailedToReadFile     = errors.New("failed to read file")
 )
 
 func ParseFiles(f1, f2 string) (parsed1, parsed2 map[string]any, err error) {
@@ -43,12 +47,12 @@ func ParseFiles(f1, f2 string) (parsed1, parsed2 map[string]any, err error) {
 
 	parsed1, err = p.parse(content1)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to parse file '%s': %w", f1, err)
+		return nil, nil, fmt.Errorf("%w: '%s': %w", ErrFailedToParseFile, f1, err)
 	}
 
 	parsed2, err = p.parse(content2)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to parse file '%s': %w", f2, err)
+		return nil, nil, fmt.Errorf("%w: '%s': %w", ErrFailedToParseFile, f2, err)
 	}
 
 	return parsed1, parsed2, nil
@@ -114,16 +118,16 @@ func getFileContent(f string) ([]byte, error) {
 
 	mode := fileInfo.Mode()
 	if !mode.IsRegular() {
-		return nil, fmt.Errorf("file '%s' is not a regular file", f)
+		return nil, fmt.Errorf("%w: '%s'", ErrNotRegularFile, f)
 	}
 
 	if fileInfo.Size() == 0 {
-		return nil, fmt.Errorf("file '%s' is empty", f)
+		return nil, fmt.Errorf("%w: '%s'", ErrFileIsEmpty, f)
 	}
 
 	content, err := os.ReadFile(filepath.Clean(f))
 	if err != nil {
-		return nil, fmt.Errorf("failed to read file '%s': %w", f, err)
+		return nil, fmt.Errorf("%w: '%s': %w", ErrFailedToReadFile, f, err)
 	}
 
 	return content, nil

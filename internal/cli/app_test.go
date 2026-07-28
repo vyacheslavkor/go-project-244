@@ -15,7 +15,7 @@ import (
 )
 
 func TestNewCommand(t *testing.T) {
-	expected, err := os.ReadFile(filepath.Join(getFixturePath(), "expected.txt"))
+	expectedStylish, err := os.ReadFile(filepath.Join(getFixturePath(), "expected_stylish.txt"))
 	require.NoError(t, err)
 
 	testCases := []struct {
@@ -29,14 +29,14 @@ func TestNewCommand(t *testing.T) {
 			want: getHelp(t),
 		},
 		{
-			name: "plain json files, stylish format",
+			name: "json files, stylish format",
 			args: []string{filepath.Join(getFixturePath(), "file1.json"), filepath.Join(getFixturePath(), "file2.json")},
-			want: string(expected),
+			want: string(expectedStylish),
 		},
 		{
-			name: "plain yml files, stylish format",
+			name: "yml files, stylish format",
 			args: []string{filepath.Join(getFixturePath(), "file1.yml"), filepath.Join(getFixturePath(), "file2.yml")},
-			want: string(expected),
+			want: string(expectedStylish),
 		},
 	}
 

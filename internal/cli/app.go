@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+// NewCommand builds the gendiff CLI command with flags and actions.
 func NewCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "gendiff",

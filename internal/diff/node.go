@@ -1,7 +1,9 @@
 package diff
 
+// Status describes how a property changed between two configurations.
 type Status string
 
+// Node status values used in a difference tree.
 const (
 	StatusAdded     Status = "added"
 	StatusRemoved   Status = "removed"
@@ -10,13 +12,19 @@ const (
 	StatusUnchanged Status = "unchanged"
 )
 
+// Node is a single property difference in a [Tree].
 type Node struct {
-	Status   Status
+	// Status is how the property changed.
+	Status Status
+	// OldValue is the value from the first configuration, if any.
 	OldValue any
-	Value    any
+	// Value is the value from the second configuration, if any.
+	Value any
+	// Children holds nested differences when Status is StatusNested.
 	Children *Tree
 }
 
+// NewNode constructs a difference node with the given status and values.
 func NewNode(status Status, oldValue, value any, children *Tree) *Node {
 	return &Node{
 		Status:   status,

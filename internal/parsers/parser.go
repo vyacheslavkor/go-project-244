@@ -20,15 +20,33 @@ var extHandlers = map[string]formatParser{
 }
 
 var (
-	ErrPathHasNoExtension   = errors.New("cannot extract extension from path")
+	// ErrPathHasNoExtension is returned when a path has no file extension.
+	ErrPathHasNoExtension = errors.New("cannot extract extension from path")
+	// ErrDifferentFileFormats is returned when the two files use incompatible formats.
 	ErrDifferentFileFormats = errors.New("files have different formats")
+	// ErrUnsupportedExtension is returned when the file extension is not supported.
 	ErrUnsupportedExtension = errors.New("unsupported extension")
-	ErrNotRegularFile       = errors.New("file is not a regular file")
-	ErrFileIsEmpty          = errors.New("file is empty")
-	ErrFailedToParseFile    = errors.New("failed to parse file")
-	ErrFailedToReadFile     = errors.New("failed to read file")
+	// ErrNotRegularFile is returned when the path is not a regular file.
+	ErrNotRegularFile = errors.New("file is not a regular file")
+	// ErrFileIsEmpty is returned when the file has zero size.
+	ErrFileIsEmpty = errors.New("file is empty")
+	// ErrFailedToParseFile is returned when file contents cannot be decoded.
+	ErrFailedToParseFile = errors.New("failed to parse file")
+	// ErrFailedToReadFile is returned when the file cannot be read from disk.
+	ErrFailedToReadFile = errors.New("failed to read file")
 )
 
+// ParseFiles reads and parses two configuration files and returns their
+// contents as nested maps.
+//
+// f1 and f2 must be paths to existing non-empty regular files.
+// Supported formats are JSON (.json) and YAML (.yml, .yaml).
+// Both files must use compatible formats: JSON with JSON, or YAML with YAML
+// (.yml and .yaml may be mixed).
+//
+// On failure, err may wrap one of the package sentinel errors
+// (for example [ErrUnsupportedExtension], [ErrDifferentFileFormats],
+// [ErrFailedToParseFile]).
 func ParseFiles(f1, f2 string) (parsed1, parsed2 map[string]any, err error) {
 	p, err := resolveParser(f1, f2)
 	if err != nil {

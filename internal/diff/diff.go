@@ -5,10 +5,13 @@ import (
 	"slices"
 )
 
+// Tree is a sorted map of difference nodes keyed by property name.
 type Tree struct {
+	// Nodes maps property names to their difference nodes.
 	Nodes map[string]*Node
 }
 
+// ExtractKeys returns the node keys in lexicographic order.
 func (t *Tree) ExtractKeys() []string {
 	result := make([]string, 0, len(t.Nodes))
 
@@ -21,6 +24,7 @@ func (t *Tree) ExtractKeys() []string {
 	return result
 }
 
+// NewTree builds a difference tree by comparing parsed1 and parsed2.
 func NewTree(parsed1, parsed2 map[string]any) *Tree {
 	keys := extractKeys(parsed1, parsed2)
 	result := &Tree{Nodes: map[string]*Node{}}

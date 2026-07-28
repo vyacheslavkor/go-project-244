@@ -5,5 +5,5 @@ USAGE:
    gendiff [global options]
 
 GLOBAL OPTIONS:
-   --format string, -f string  output format (default: "stylish")
+   --format string, -f string  output format (allowed: stylish, plain, json) (default: "stylish")
    --help, -h                  show help

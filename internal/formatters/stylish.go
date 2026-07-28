@@ -12,16 +12,10 @@ const (
 	replacerCount = 2
 )
 
-func ToStylish(d *diff.Diff) string {
+type StylishFormatter struct{}
+
+func (f *StylishFormatter) Format(d *diff.Diff) string {
 	return stylish(d)
-}
-
-func getIndent(node *diff.Node, indentSize, replacerCount int) string {
-	if node.Status == "added" || node.Status == "updated" || node.Status == "removed" {
-		return strings.Repeat(replacer, indentSize)
-	}
-
-	return strings.Repeat(replacer, indentSize+replacerCount)
 }
 
 func stylish(d *diff.Diff) string {
@@ -60,6 +54,14 @@ func iter(d *diff.Diff, depth int) string {
 	lines = append(lines, bracketIndent+"}")
 
 	return strings.Join(lines, "\n")
+}
+
+func getIndent(node *diff.Node, indentSize, replacerCount int) string {
+	if node.Status == "added" || node.Status == "updated" || node.Status == "removed" {
+		return strings.Repeat(replacer, indentSize)
+	}
+
+	return strings.Repeat(replacer, indentSize+replacerCount)
 }
 
 func formatLine(indent, sign, key, value string) string {

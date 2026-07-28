@@ -7,7 +7,8 @@ import (
 )
 
 func GenDiff(filepath1, filepath2, format string) (string, error) {
-	if err := formatters.ValidateFormat(format); err != nil {
+	formatter, err := formatters.NewFormatter(format)
+	if err != nil {
 		return "", err
 	}
 
@@ -17,7 +18,7 @@ func GenDiff(filepath1, filepath2, format string) (string, error) {
 	}
 
 	d := diff.NewDiff(parsed1, parsed2)
-	formatted := formatters.ToStylish(d)
+	formatted := formatter.Format(d)
 
 	return formatted, nil
 }

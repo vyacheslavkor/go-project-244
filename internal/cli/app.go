@@ -54,7 +54,7 @@ func newArgumentsCountError(cmd *cli.Command, expected, got int) error {
 	cli.ShowAppHelp(cmd)
 
 	return cli.Exit(
-		fmt.Sprintf("incorrect usage: expected %d argument, got %d", expected, got),
+		fmt.Sprintf("incorrect usage: expected %d arguments, got %d", expected, got),
 		1,
 	)
 }

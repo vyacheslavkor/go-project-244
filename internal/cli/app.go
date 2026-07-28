@@ -41,7 +41,7 @@ func NewCommand() *cli.Command {
 			&cli.StringFlag{
 				Name:        "format",
 				Aliases:     []string{"f"},
-				Usage:       "output format",
+				Usage:       "output format (allowed: stylish, plain, json)",
 				DefaultText: "\"stylish\"",
 				Value:       "stylish",
 			},

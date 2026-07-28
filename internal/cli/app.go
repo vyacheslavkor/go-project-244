@@ -42,6 +42,7 @@ func NewCommand() *cli.Command {
 				Aliases:     []string{"f"},
 				Usage:       "output format",
 				DefaultText: "\"stylish\"",
+				Value:       "stylish",
 			},
 		},
 	}

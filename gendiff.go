@@ -4,6 +4,7 @@ import (
 	"code/internal/diff"
 	"code/internal/parsers"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -24,43 +25,8 @@ const (
 	replacerCount = 2
 )
 
-func formatOutput(d diff.Diff) string {
-	keys := d.ExtractKeys()
-	depth := 1
-
-	lines := make([]string, 0, len(d.Nodes)*2)
-	lines = append(lines, "{")
-
-	indentSize := replacerCount*depth + replacerCount*(depth-1)
-	bracketIndent := strings.Repeat(replacer, indentSize-replacerCount)
-
-	for _, k := range keys {
-		node := d.Nodes[k]
-		lines = append(lines, GenerateOutputStr(node, k, 1, replacer, indentSize))
-	}
-
-	lines = append(lines, bracketIndent+"}")
-
-	result := strings.Join(lines, "\n")
-
-	return result
-}
-
-func GenerateOutputStr(node *diff.Node, key string, depth int, replacer string, indentSize int) string {
-	switch node.Status {
-	case "removed":
-		return fmt.Sprintf("%s- %s: %v", getIndent(node, indentSize, replacerCount), key, node.OldValue)
-	case "added":
-		return fmt.Sprintf("%s+ %s: %v", getIndent(node, indentSize, replacerCount), key, node.Value)
-	case "updated":
-		removedLine := fmt.Sprintf("%s- %s: %v", getIndent(node, indentSize, replacerCount), key, node.OldValue)
-		addedLine := fmt.Sprintf("%s+ %s: %v", getIndent(node, indentSize, replacerCount), key, node.Value)
-		return fmt.Sprintf("%s\n%s", removedLine, addedLine)
-	case "unchanged":
-		return fmt.Sprintf("%s%s: %v", getIndent(node, indentSize, replacerCount), key, node.Value)
-	}
-
-	return ""
+func formatOutput(d *diff.Diff) string {
+	return stylish(d)
 }
 
 func getIndent(node *diff.Node, indentSize, replacerCount int) string {
@@ -69,4 +35,86 @@ func getIndent(node *diff.Node, indentSize, replacerCount int) string {
 	}
 
 	return strings.Repeat(replacer, indentSize+replacerCount)
+}
+
+func stylish(d *diff.Diff) string {
+	return iter(d, 1)
+}
+
+func iter(d *diff.Diff, depth int) string {
+	indentSize := replacerCount*depth + replacerCount*(depth-1)
+	bracketIndent := strings.Repeat(replacer, indentSize-replacerCount)
+
+	keys := d.ExtractKeys()
+
+	lines := make([]string, 0, len(d.Nodes)*2)
+	lines = append(lines, "{")
+
+	for _, k := range keys {
+		node := d.Nodes[k]
+		indent := getIndent(node, indentSize, replacerCount)
+
+		switch node.Status {
+		case "removed":
+			lines = append(lines, formatLine(indent, "- ", k, formatValue(node.OldValue, depth)))
+		case "added":
+			lines = append(lines, formatLine(indent, "+ ", k, formatValue(node.Value, depth)))
+		case "updated":
+			removedLine := formatLine(indent, "- ", k, formatValue(node.OldValue, depth))
+			addedLine := formatLine(indent, "+ ", k, formatValue(node.Value, depth))
+			lines = append(lines, fmt.Sprintf("%s\n%s", removedLine, addedLine))
+		case "unchanged":
+			lines = append(lines, formatLine(indent, "", k, formatValue(node.Value, depth)))
+		case "nested":
+			lines = append(lines, formatLine(indent, "", k, iter(node.Children, depth+1)))
+		}
+	}
+
+	lines = append(lines, bracketIndent+"}")
+
+	return strings.Join(lines, "\n")
+}
+
+func formatLine(indent, sign, key, value string) string {
+	return fmt.Sprintf("%s%s%s: %s", indent, sign, key, value)
+}
+
+func toString(val any) string {
+	if val == nil {
+		return "null"
+	}
+
+	return fmt.Sprintf("%v", val)
+}
+
+func formatValue(v any, depth int) string {
+	if m, isMap := v.(map[string]any); isMap {
+		return formatMap(m, depth)
+	}
+
+	return toString(v)
+}
+
+func formatMap(m map[string]any, depth int) string {
+	childDepth := depth + 1
+	childIndentSize := replacerCount*childDepth + replacerCount*(childDepth-1)
+	keyIndent := strings.Repeat(replacer, childIndentSize+replacerCount)
+	bracketIndent := strings.Repeat(replacer, childIndentSize-replacerCount)
+
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	lines := make([]string, 0, len(m)+2)
+	lines = append(lines, "{")
+
+	for _, k := range keys {
+		lines = append(lines, formatLine(keyIndent, "", k, formatValue(m[k], childDepth)))
+	}
+
+	lines = append(lines, bracketIndent+"}")
+
+	return strings.Join(lines, "\n")
 }

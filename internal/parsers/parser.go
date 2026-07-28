@@ -14,9 +14,9 @@ type formatParser interface {
 }
 
 var extHandlers = map[string]formatParser{
-	".json": &jsonParser{},
-	".yml":  &yamlParser{},
-	".yaml": &yamlParser{},
+	".json": jsonParser{},
+	".yml":  yamlParser{},
+	".yaml": yamlParser{},
 }
 
 var (

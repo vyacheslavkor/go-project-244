@@ -19,6 +19,8 @@ func TestNewCommand(t *testing.T) {
 	require.NoError(t, err)
 	expectedPlain, err := os.ReadFile(filepath.Join(getFixturePath(), "expected_plain.txt"))
 	require.NoError(t, err)
+	expectedJson, err := os.ReadFile(filepath.Join(getFixturePath(), "expected_json.txt"))
+	require.NoError(t, err)
 
 	testCases := []struct {
 		name string
@@ -49,6 +51,16 @@ func TestNewCommand(t *testing.T) {
 			name: "yml files, plain format",
 			args: []string{filepath.Join(getFixturePath(), "file1.yml"), filepath.Join(getFixturePath(), "file2.yml"), "--format=plain"},
 			want: string(expectedPlain),
+		},
+		{
+			name: "json files, json format",
+			args: []string{filepath.Join(getFixturePath(), "file1.json"), filepath.Join(getFixturePath(), "file2.json"), "--format=json"},
+			want: string(expectedJson),
+		},
+		{
+			name: "yml files, json format",
+			args: []string{filepath.Join(getFixturePath(), "file1.yml"), filepath.Join(getFixturePath(), "file2.yml"), "--format=json"},
+			want: string(expectedJson),
 		},
 	}
 

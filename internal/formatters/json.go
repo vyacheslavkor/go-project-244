@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 )
 
-type JsonFormatter struct{}
+type jsonFormatter struct{}
 
 type jsonNode struct {
 	Key      string     `json:"key"`
@@ -15,7 +15,7 @@ type jsonNode struct {
 	Children []jsonNode `json:"children,omitempty"`
 }
 
-func (f *JsonFormatter) Format(d *diff.Diff) (string, error) {
+func (f jsonFormatter) Format(d *diff.Diff) (string, error) {
 	nodes := processDiffJson(d)
 	rootNode := jsonNode{
 		Key:      "",

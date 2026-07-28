@@ -12,11 +12,11 @@ type Formatter interface {
 func NewFormatter(format string) (Formatter, error) {
 	switch format {
 	case "stylish":
-		return &StylishFormatter{}, nil
+		return stylishFormatter{}, nil
 	case "plain":
-		return &PlainFormatter{}, nil
+		return plainFormatter{}, nil
 	case "json":
-		return &JsonFormatter{}, nil
+		return jsonFormatter{}, nil
 	}
 
 	return nil, fmt.Errorf("invalid format: %s", format)

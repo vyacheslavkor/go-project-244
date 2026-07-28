@@ -12,14 +12,10 @@ const (
 	replacerCount = 2
 )
 
-type StylishFormatter struct{}
+type stylishFormatter struct{}
 
-func (f *StylishFormatter) Format(d *diff.Diff) (string, error) {
-	return stylish(d), nil
-}
-
-func stylish(d *diff.Diff) string {
-	return processDiffStylish(d, 1)
+func (f stylishFormatter) Format(d *diff.Diff) (string, error) {
+	return processDiffStylish(d, 1), nil
 }
 
 func processDiffStylish(d *diff.Diff, depth int) string {

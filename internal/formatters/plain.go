@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-type PlainFormatter struct{}
+type plainFormatter struct{}
 
-func (f *PlainFormatter) Format(d *diff.Diff) (string, error) {
+func (f plainFormatter) Format(d *diff.Diff) (string, error) {
 	return processDiffPlain(d, ""), nil
 }
 

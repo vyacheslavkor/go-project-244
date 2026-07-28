@@ -21,15 +21,15 @@ func processDiffPlain(d *diff.Diff, path string) string {
 		node := d.Nodes[k]
 
 		switch node.Status {
-		case "added":
+		case diff.StatusAdded:
 			lines = append(lines, fmt.Sprintf("Property '%s%s' was added with value: %s", path, k, formatValueToPlain(node.Value)))
-		case "removed":
+		case diff.StatusRemoved:
 			lines = append(lines, fmt.Sprintf("Property '%s%s' was removed", path, k))
-		case "updated":
+		case diff.StatusUpdated:
 			lines = append(lines, fmt.Sprintf("Property '%s%s' was updated. From %s to %s", path, k, formatValueToPlain(node.OldValue), formatValueToPlain(node.Value)))
-		case "unchanged":
+		case diff.StatusUnchanged:
 			continue
-		case "nested":
+		case diff.StatusNested:
 			lines = append(lines, processDiffPlain(node.Children, fmt.Sprintf("%s%s.", path, k)))
 		}
 	}

@@ -8,11 +8,11 @@ import (
 type jsonFormatter struct{}
 
 type jsonNode struct {
-	Key      string     `json:"key"`
-	Status   string     `json:"status"`
-	OldValue *any       `json:"old_value,omitempty"`
-	Value    *any       `json:"value,omitempty"`
-	Children []jsonNode `json:"children,omitempty"`
+	Key      string      `json:"key"`
+	Status   diff.Status `json:"status"`
+	OldValue *any        `json:"old_value,omitempty"`
+	Value    *any        `json:"value,omitempty"`
+	Children []jsonNode  `json:"children,omitempty"`
 }
 
 func (f jsonFormatter) Format(d *diff.Diff) (string, error) {
@@ -44,16 +44,16 @@ func buildJSONNodes(d *diff.Diff) []jsonNode {
 		}
 
 		switch node.Status {
-		case "added":
+		case diff.StatusAdded:
 			n.Value = &node.Value
-		case "removed":
+		case diff.StatusRemoved:
 			n.OldValue = &node.OldValue
-		case "updated":
+		case diff.StatusUpdated:
 			n.Value = &node.Value
 			n.OldValue = &node.OldValue
-		case "unchanged":
+		case diff.StatusUnchanged:
 			n.Value = &node.Value
-		case "nested":
+		case diff.StatusNested:
 			n.Children = buildJSONNodes(node.Children)
 		}
 

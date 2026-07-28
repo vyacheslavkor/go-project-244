@@ -32,17 +32,17 @@ func processDiffStylish(d *diff.Diff, depth int) string {
 		indent := getIndent(node, indentSize, replacerCount)
 
 		switch node.Status {
-		case "removed":
+		case diff.StatusRemoved:
 			lines = append(lines, formatLine(indent, "- ", k, formatStylishValue(node.OldValue, depth)))
-		case "added":
+		case diff.StatusAdded:
 			lines = append(lines, formatLine(indent, "+ ", k, formatStylishValue(node.Value, depth)))
-		case "updated":
+		case diff.StatusUpdated:
 			removedLine := formatLine(indent, "- ", k, formatStylishValue(node.OldValue, depth))
 			addedLine := formatLine(indent, "+ ", k, formatStylishValue(node.Value, depth))
 			lines = append(lines, fmt.Sprintf("%s\n%s", removedLine, addedLine))
-		case "unchanged":
+		case diff.StatusUnchanged:
 			lines = append(lines, formatLine(indent, "", k, formatStylishValue(node.Value, depth)))
-		case "nested":
+		case diff.StatusNested:
 			lines = append(lines, formatLine(indent, "", k, processDiffStylish(node.Children, depth+1)))
 		}
 	}
@@ -53,7 +53,7 @@ func processDiffStylish(d *diff.Diff, depth int) string {
 }
 
 func getIndent(node *diff.Node, indentSize, replacerCount int) string {
-	if node.Status == "added" || node.Status == "updated" || node.Status == "removed" {
+	if node.Status == diff.StatusAdded || node.Status == diff.StatusUpdated || node.Status == diff.StatusRemoved {
 		return strings.Repeat(replacer, indentSize)
 	}
 

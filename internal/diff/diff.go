@@ -30,13 +30,13 @@ func NewDiff(parsed1, parsed2 map[string]any) *Diff {
 		val2, has2 := parsed2[k]
 
 		if !has1 {
-			result.Nodes[k] = NewNode("added", nil, val2, nil)
+			result.Nodes[k] = NewNode(StatusAdded, nil, val2, nil)
 
 			continue
 		}
 
 		if !has2 {
-			result.Nodes[k] = NewNode("removed", val1, nil, nil)
+			result.Nodes[k] = NewNode(StatusRemoved, val1, nil, nil)
 
 			continue
 		}
@@ -46,18 +46,18 @@ func NewDiff(parsed1, parsed2 map[string]any) *Diff {
 
 		if isMap1 && isMap2 {
 			diff := NewDiff(map1, map2)
-			result.Nodes[k] = NewNode("nested", val1, val2, diff)
+			result.Nodes[k] = NewNode(StatusNested, val1, val2, diff)
 
 			continue
 		}
 
 		if reflect.DeepEqual(val1, val2) {
-			result.Nodes[k] = NewNode("unchanged", val1, val2, nil)
+			result.Nodes[k] = NewNode(StatusUnchanged, val1, val2, nil)
 
 			continue
 		}
 
-		result.Nodes[k] = NewNode("updated", val1, val2, nil)
+		result.Nodes[k] = NewNode(StatusUpdated, val1, val2, nil)
 	}
 
 	return result

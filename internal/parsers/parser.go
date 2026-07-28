@@ -1,9 +1,11 @@
 package parsers
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -16,6 +18,12 @@ var extHandlers = map[string]formatParser{
 	".yml":  &yamlParser{},
 	".yaml": &yamlParser{},
 }
+
+var (
+	ErrPathHasNoExtension   = errors.New("cannot extract extension from path")
+	ErrDifferentFileFormats = errors.New("files have different formats")
+	ErrUnsupportedExtension = errors.New("unsupported extension")
+)
 
 func ParseFiles(f1, f2 string) (parsed1, parsed2 map[string]any, err error) {
 	p, err := resolveParser(f1, f2)
@@ -47,35 +55,55 @@ func ParseFiles(f1, f2 string) (parsed1, parsed2 map[string]any, err error) {
 }
 
 func resolveParser(file1, file2 string) (formatParser, error) {
-	parser1, err := resolveHandler(file1)
+	ext1, err := extractExt(file1)
 	if err != nil {
 		return nil, err
 	}
 
-	parser2, err := resolveHandler(file2)
+	if !isAllowedExt(ext1) {
+		return nil, fmt.Errorf("%w: '%s' for file '%s'", ErrUnsupportedExtension, ext1, file1)
+	}
+
+	ext2, err := extractExt(file2)
 	if err != nil {
 		return nil, err
 	}
 
-	if parser1 != parser2 {
-		return nil, fmt.Errorf("files '%s' and '%s' have different formats", file1, file2)
+	if !isAllowedExt(ext2) {
+		return nil, fmt.Errorf("%w: '%s' for file '%s'", ErrUnsupportedExtension, ext2, file2)
 	}
 
-	return parser1, nil
+	if !isCompatibleExt(ext1, ext2) {
+		return nil, fmt.Errorf("%w: files '%s' and '%s'", ErrDifferentFileFormats, file1, file2)
+	}
+
+	return extHandlers[ext1], nil
 }
 
-func resolveHandler(file string) (formatParser, error) {
+func extractExt(file string) (string, error) {
 	ext := strings.ToLower(filepath.Ext(file))
 	if ext == "" {
-		return nil, fmt.Errorf("file '%s' has no extension", file)
+		return "", fmt.Errorf("%w: %s", ErrPathHasNoExtension, file)
 	}
 
-	handler, ok := extHandlers[ext]
-	if !ok {
-		return nil, fmt.Errorf("file '%s' has unsupported extension '%s'", file, ext)
+	return ext, nil
+}
+
+func isAllowedExt(ext string) bool {
+	_, ok := extHandlers[ext]
+	return ok
+}
+
+func isCompatibleExt(ext1, ext2 string) bool {
+	compatibleMap := map[string][]string{
+		".json": {".json"},
+		".yml":  {".yml", ".yaml"},
+		".yaml": {".yaml", ".yml"},
 	}
 
-	return handler, nil
+	compatible := compatibleMap[ext1]
+
+	return slices.Contains(compatible, ext2)
 }
 
 func getFileContent(f string) ([]byte, error) {

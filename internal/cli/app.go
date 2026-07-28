@@ -14,8 +14,32 @@ import (
 // NewCommand builds the gendiff CLI command with flags and actions.
 func NewCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "gendiff",
-		Usage: "Compares two configuration files and shows a difference.",
+		Name:      "gendiff",
+		Usage:     "Compares two configuration files and shows a difference.",
+		ArgsUsage: "<filepath1> <filepath2>",
+		Description: `Compare two configuration files and print their difference.
+
+Arguments:
+  <filepath1>, <filepath2>  Paths to existing non-empty regular files. Exactly two
+                positional arguments are required.
+
+Input formats:
+  JSON  (.json)
+  YAML  (.yml, .yaml)
+
+Both files must use compatible formats: JSON with JSON, or YAML with YAML.
+Mixing .yml and .yaml is allowed; mixing JSON and YAML is not.
+The parser is chosen by file extension (content is not sniffed).
+
+Output formats (--format / -f):
+  stylish  Nested tree with +/- markers (default)
+  plain    Line-oriented human-readable messages
+  json     Machine-readable JSON tree of changes
+
+Examples:
+  gendiff file1.json file2.json
+  gendiff -f plain a.yml b.yaml
+  gendiff --format=json before.json after.json`,
 		Action: func(_ context.Context, cmd *cli.Command) error {
 			const expectedArgsCount = 2
 			if cmd.Args().Len() != expectedArgsCount {
@@ -38,7 +62,6 @@ func NewCommand() *cli.Command {
 
 			return cli.Exit(fmt.Sprintf("incorrect usage: %v", err), 1)
 		},
-		ArgsUsage: "",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:        "format",

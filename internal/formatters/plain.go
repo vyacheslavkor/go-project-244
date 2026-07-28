@@ -42,15 +42,16 @@ func formatValueToPlain(val any) string {
 		return "null"
 	}
 
-	_, isBool := val.(bool)
-	if isBool {
-		return fmt.Sprintf("%v", val)
-	}
-
-	_, isMap := val.(map[string]any)
-	if isMap {
+	switch v := val.(type) {
+	case string:
+		return fmt.Sprintf("'%v'", v)
+	case bool, int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64,
+		float32, float64:
+		return fmt.Sprintf("%v", v)
+	case map[string]any, []any:
 		return "[complex value]"
+	default:
+		return fmt.Sprintf("%v", v)
 	}
-
-	return fmt.Sprintf("'%v'", val)
 }

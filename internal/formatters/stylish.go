@@ -14,8 +14,8 @@ const (
 
 type StylishFormatter struct{}
 
-func (f *StylishFormatter) Format(d *diff.Diff) string {
-	return stylish(d)
+func (f *StylishFormatter) Format(d *diff.Diff) (string, error) {
+	return stylish(d), nil
 }
 
 func stylish(d *diff.Diff) string {

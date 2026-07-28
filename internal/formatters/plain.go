@@ -8,8 +8,8 @@ import (
 
 type PlainFormatter struct{}
 
-func (f *PlainFormatter) Format(d *diff.Diff) string {
-	return processDiffPlain(d, "")
+func (f *PlainFormatter) Format(d *diff.Diff) (string, error) {
+	return processDiffPlain(d, ""), nil
 }
 
 func processDiffPlain(d *diff.Diff, path string) string {

@@ -6,7 +6,7 @@ import (
 )
 
 type Formatter interface {
-	Format(d *diff.Diff) string
+	Format(d *diff.Diff) (string, error)
 }
 
 func NewFormatter(format string) (Formatter, error) {

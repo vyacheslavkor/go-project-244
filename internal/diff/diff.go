@@ -21,35 +21,43 @@ func (d *Diff) ExtractKeys() []string {
 	return result
 }
 
-func NewDiff(parsed1, parsed2 map[string]any) Diff {
+func NewDiff(parsed1, parsed2 map[string]any) *Diff {
 	keys := extractKeys(parsed1, parsed2)
-	result := Diff{Nodes: map[string]*Node{}}
+	result := &Diff{Nodes: map[string]*Node{}}
 
 	for _, k := range keys {
-		if _, ok := parsed1[k]; !ok {
-			val := parsed2[k]
-			result.Nodes[k] = NewNode("added", nil, val)
+		val1, has1 := parsed1[k]
+		val2, has2 := parsed2[k]
+
+		if !has1 {
+			result.Nodes[k] = NewNode("added", nil, val2, nil)
 
 			continue
 		}
 
-		if _, ok := parsed2[k]; !ok {
-			val := parsed1[k]
-			result.Nodes[k] = NewNode("removed", val, nil)
+		if !has2 {
+			result.Nodes[k] = NewNode("removed", val1, nil, nil)
 
 			continue
 		}
 
-		oldVal := parsed1[k]
-		val := parsed2[k]
+		map1, isMap1 := val1.(map[string]any)
+		map2, isMap2 := val2.(map[string]any)
 
-		if reflect.TypeOf(oldVal) == reflect.TypeOf(val) && oldVal == val {
-			result.Nodes[k] = NewNode("unchanged", oldVal, val)
+		if isMap1 && isMap2 {
+			diff := NewDiff(map1, map2)
+			result.Nodes[k] = NewNode("nested", val1, val2, diff)
 
 			continue
 		}
 
-		result.Nodes[k] = NewNode("updated", oldVal, val)
+		if reflect.DeepEqual(val1, val2) {
+			result.Nodes[k] = NewNode("unchanged", val1, val2, nil)
+
+			continue
+		}
+
+		result.Nodes[k] = NewNode("updated", val1, val2, nil)
 	}
 
 	return result

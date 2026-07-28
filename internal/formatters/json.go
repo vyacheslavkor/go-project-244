@@ -16,7 +16,14 @@ type jsonNode struct {
 }
 
 func (f *JsonFormatter) Format(d *diff.Diff) (string, error) {
-	data, err := json.Marshal(processDiffJson(d))
+	nodes := processDiffJson(d)
+	rootNode := jsonNode{
+		Key:    "",
+		Status: "root",
+		Children: nodes,
+	}
+
+	data, err := json.Marshal(rootNode)
 	if err != nil {
 		return "", err
 	}

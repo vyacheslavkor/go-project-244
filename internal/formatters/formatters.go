@@ -10,8 +10,11 @@ type Formatter interface {
 }
 
 func NewFormatter(format string) (Formatter, error) {
-	if format == "stylish" {
+	switch format {
+	case "stylish":
 		return &StylishFormatter{}, nil
+	case "plain":
+		return &PlainFormatter{}, nil
 	}
 
 	return nil, fmt.Errorf("invalid format: %s", format)

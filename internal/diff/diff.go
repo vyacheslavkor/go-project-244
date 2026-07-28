@@ -49,8 +49,8 @@ func NewTree(parsed1, parsed2 map[string]any) *Tree {
 		map2, isMap2 := val2.(map[string]any)
 
 		if isMap1 && isMap2 {
-			diff := NewTree(map1, map2)
-			result.Nodes[k] = NewNode(StatusNested, val1, val2, diff)
+			nested := NewTree(map1, map2)
+			result.Nodes[k] = NewNode(StatusNested, val1, val2, nested)
 
 			continue
 		}

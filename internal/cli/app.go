@@ -23,12 +23,12 @@ func NewCommand() *cli.Command {
 
 			file1, file2 := cmd.Args().Get(0), cmd.Args().Get(1)
 
-			diff, err := code.GenDiff(file1, file2, cmd.String("format"))
+			out, err := code.GenDiff(file1, file2, cmd.String("format"))
 			if err != nil {
 				return returnError(err, cmd)
 			}
 
-			fmt.Fprintln(cmd.Writer, diff)
+			fmt.Fprintln(cmd.Writer, out)
 
 			return nil
 		},

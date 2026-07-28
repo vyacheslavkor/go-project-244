@@ -15,8 +15,8 @@ type jsonNode struct {
 	Children []jsonNode  `json:"children,omitempty"`
 }
 
-func (f jsonFormatter) Format(d *diff.Tree) (string, error) {
-	nodes := buildJSONNodes(d)
+func (f jsonFormatter) Format(t *diff.Tree) (string, error) {
+	nodes := buildJSONNodes(t)
 	rootNode := jsonNode{
 		Key:      "",
 		Status:   "root",
@@ -31,13 +31,13 @@ func (f jsonFormatter) Format(d *diff.Tree) (string, error) {
 	return string(data), nil
 }
 
-func buildJSONNodes(d *diff.Tree) []jsonNode {
-	keys := d.ExtractKeys()
+func buildJSONNodes(t *diff.Tree) []jsonNode {
+	keys := t.ExtractKeys()
 
 	nodes := make([]jsonNode, 0, len(keys))
 
 	for _, k := range keys {
-		node := d.Nodes[k]
+		node := t.Nodes[k]
 		n := jsonNode{
 			Key:    k,
 			Status: node.Status,

@@ -14,21 +14,21 @@ const (
 
 type stylishFormatter struct{}
 
-func (f stylishFormatter) Format(d *diff.Tree) (string, error) {
-	return processDiffStylish(d, 1), nil
+func (f stylishFormatter) Format(t *diff.Tree) (string, error) {
+	return formatStylish(t, 1), nil
 }
 
-func processDiffStylish(d *diff.Tree, depth int) string {
+func formatStylish(t *diff.Tree, depth int) string {
 	indentSize := replacerCount*depth + replacerCount*(depth-1)
 	bracketIndent := strings.Repeat(replacer, indentSize-replacerCount)
 
-	keys := d.ExtractKeys()
+	keys := t.ExtractKeys()
 
-	lines := make([]string, 0, len(d.Nodes)*2)
+	lines := make([]string, 0, len(t.Nodes)*2)
 	lines = append(lines, "{")
 
 	for _, k := range keys {
-		node := d.Nodes[k]
+		node := t.Nodes[k]
 		indent := getIndent(node, indentSize, replacerCount)
 
 		switch node.Status {
@@ -43,7 +43,7 @@ func processDiffStylish(d *diff.Tree, depth int) string {
 		case diff.StatusUnchanged:
 			lines = append(lines, formatLine(indent, "", k, formatStylishValue(node.Value, depth)))
 		case diff.StatusNested:
-			lines = append(lines, formatLine(indent, "", k, processDiffStylish(node.Children, depth+1)))
+			lines = append(lines, formatLine(indent, "", k, formatStylish(node.Children, depth+1)))
 		}
 	}
 

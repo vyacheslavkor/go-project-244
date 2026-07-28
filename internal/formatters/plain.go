@@ -8,17 +8,17 @@ import (
 
 type plainFormatter struct{}
 
-func (f plainFormatter) Format(d *diff.Tree) (string, error) {
-	return processDiffPlain(d, ""), nil
+func (f plainFormatter) Format(t *diff.Tree) (string, error) {
+	return formatPlain(t, ""), nil
 }
 
-func processDiffPlain(d *diff.Tree, path string) string {
-	keys := d.ExtractKeys()
+func formatPlain(t *diff.Tree, path string) string {
+	keys := t.ExtractKeys()
 
 	lines := make([]string, 0, len(keys))
 
 	for _, k := range keys {
-		node := d.Nodes[k]
+		node := t.Nodes[k]
 
 		switch node.Status {
 		case diff.StatusAdded:
@@ -30,7 +30,7 @@ func processDiffPlain(d *diff.Tree, path string) string {
 		case diff.StatusUnchanged:
 			continue
 		case diff.StatusNested:
-			lines = append(lines, processDiffPlain(node.Children, fmt.Sprintf("%s%s.", path, k)))
+			lines = append(lines, formatPlain(node.Children, fmt.Sprintf("%s%s.", path, k)))
 		}
 	}
 

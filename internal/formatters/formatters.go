@@ -8,8 +8,8 @@ import (
 
 // Formatter formats a difference tree as a string.
 type Formatter interface {
-	// Format renders d according to the formatter implementation.
-	Format(d *diff.Tree) (string, error)
+	// Format renders t according to the formatter implementation.
+	Format(t *diff.Tree) (string, error)
 }
 
 // ErrInvalidFormat is returned when the requested output format is unknown.

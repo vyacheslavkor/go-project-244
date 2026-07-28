@@ -19,10 +19,10 @@ func (f *StylishFormatter) Format(d *diff.Diff) string {
 }
 
 func stylish(d *diff.Diff) string {
-	return iter(d, 1)
+	return processDiffStylish(d, 1)
 }
 
-func iter(d *diff.Diff, depth int) string {
+func processDiffStylish(d *diff.Diff, depth int) string {
 	indentSize := replacerCount*depth + replacerCount*(depth-1)
 	bracketIndent := strings.Repeat(replacer, indentSize-replacerCount)
 
@@ -37,17 +37,17 @@ func iter(d *diff.Diff, depth int) string {
 
 		switch node.Status {
 		case "removed":
-			lines = append(lines, formatLine(indent, "- ", k, formatValue(node.OldValue, depth)))
+			lines = append(lines, formatLine(indent, "- ", k, formatStylishValue(node.OldValue, depth)))
 		case "added":
-			lines = append(lines, formatLine(indent, "+ ", k, formatValue(node.Value, depth)))
+			lines = append(lines, formatLine(indent, "+ ", k, formatStylishValue(node.Value, depth)))
 		case "updated":
-			removedLine := formatLine(indent, "- ", k, formatValue(node.OldValue, depth))
-			addedLine := formatLine(indent, "+ ", k, formatValue(node.Value, depth))
+			removedLine := formatLine(indent, "- ", k, formatStylishValue(node.OldValue, depth))
+			addedLine := formatLine(indent, "+ ", k, formatStylishValue(node.Value, depth))
 			lines = append(lines, fmt.Sprintf("%s\n%s", removedLine, addedLine))
 		case "unchanged":
-			lines = append(lines, formatLine(indent, "", k, formatValue(node.Value, depth)))
+			lines = append(lines, formatLine(indent, "", k, formatStylishValue(node.Value, depth)))
 		case "nested":
-			lines = append(lines, formatLine(indent, "", k, iter(node.Children, depth+1)))
+			lines = append(lines, formatLine(indent, "", k, processDiffStylish(node.Children, depth+1)))
 		}
 	}
 
@@ -76,7 +76,7 @@ func toString(val any) string {
 	return fmt.Sprintf("%v", val)
 }
 
-func formatValue(v any, depth int) string {
+func formatStylishValue(v any, depth int) string {
 	if m, isMap := v.(map[string]any); isMap {
 		return formatMap(m, depth)
 	}
@@ -100,7 +100,7 @@ func formatMap(m map[string]any, depth int) string {
 	lines = append(lines, "{")
 
 	for _, k := range keys {
-		lines = append(lines, formatLine(keyIndent, "", k, formatValue(m[k], childDepth)))
+		lines = append(lines, formatLine(keyIndent, "", k, formatStylishValue(m[k], childDepth)))
 	}
 
 	lines = append(lines, bracketIndent+"}")

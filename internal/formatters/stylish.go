@@ -3,7 +3,7 @@ package formatters
 import (
 	"code/internal/diff"
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
 )
 
@@ -90,7 +90,7 @@ func formatMap(m map[string]any, depth int) string {
 	for k := range m {
 		keys = append(keys, k)
 	}
-	sort.Strings(keys)
+	slices.Sort(keys)
 
 	lines := make([]string, 0, len(m)+2)
 	lines = append(lines, "{")

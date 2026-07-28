@@ -16,7 +16,7 @@ type jsonNode struct {
 }
 
 func (f jsonFormatter) Format(d *diff.Diff) (string, error) {
-	nodes := processDiffJson(d)
+	nodes := buildJSONNodes(d)
 	rootNode := jsonNode{
 		Key:      "",
 		Status:   "root",
@@ -31,7 +31,7 @@ func (f jsonFormatter) Format(d *diff.Diff) (string, error) {
 	return string(data), nil
 }
 
-func processDiffJson(d *diff.Diff) []jsonNode {
+func buildJSONNodes(d *diff.Diff) []jsonNode {
 	keys := d.ExtractKeys()
 
 	nodes := make([]jsonNode, 0, len(keys))
@@ -54,7 +54,7 @@ func processDiffJson(d *diff.Diff) []jsonNode {
 		case "unchanged":
 			n.Value = &node.Value
 		case "nested":
-			n.Children = processDiffJson(node.Children)
+			n.Children = buildJSONNodes(node.Children)
 		}
 
 		nodes = append(nodes, n)

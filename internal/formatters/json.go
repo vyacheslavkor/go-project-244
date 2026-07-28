@@ -18,8 +18,8 @@ type jsonNode struct {
 func (f *JsonFormatter) Format(d *diff.Diff) (string, error) {
 	nodes := processDiffJson(d)
 	rootNode := jsonNode{
-		Key:    "",
-		Status: "root",
+		Key:      "",
+		Status:   "root",
 		Children: nodes,
 	}
 

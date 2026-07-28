@@ -5,14 +5,14 @@ import (
 	"slices"
 )
 
-type Diff struct {
+type Tree struct {
 	Nodes map[string]*Node
 }
 
-func (d *Diff) ExtractKeys() []string {
-	result := make([]string, 0, len(d.Nodes))
+func (t *Tree) ExtractKeys() []string {
+	result := make([]string, 0, len(t.Nodes))
 
-	for k := range d.Nodes {
+	for k := range t.Nodes {
 		result = append(result, k)
 	}
 
@@ -21,9 +21,9 @@ func (d *Diff) ExtractKeys() []string {
 	return result
 }
 
-func NewDiff(parsed1, parsed2 map[string]any) *Diff {
+func NewTree(parsed1, parsed2 map[string]any) *Tree {
 	keys := extractKeys(parsed1, parsed2)
-	result := &Diff{Nodes: map[string]*Node{}}
+	result := &Tree{Nodes: map[string]*Node{}}
 
 	for _, k := range keys {
 		val1, has1 := parsed1[k]
@@ -45,7 +45,7 @@ func NewDiff(parsed1, parsed2 map[string]any) *Diff {
 		map2, isMap2 := val2.(map[string]any)
 
 		if isMap1 && isMap2 {
-			diff := NewDiff(map1, map2)
+			diff := NewTree(map1, map2)
 			result.Nodes[k] = NewNode(StatusNested, val1, val2, diff)
 
 			continue

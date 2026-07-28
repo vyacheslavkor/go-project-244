@@ -7,7 +7,7 @@ import (
 )
 
 type Formatter interface {
-	Format(d *diff.Diff) (string, error)
+	Format(d *diff.Tree) (string, error)
 }
 
 var ErrInvalidFormat = errors.New("invalid format")

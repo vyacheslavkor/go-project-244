@@ -14,11 +14,11 @@ const (
 
 type stylishFormatter struct{}
 
-func (f stylishFormatter) Format(d *diff.Diff) (string, error) {
+func (f stylishFormatter) Format(d *diff.Tree) (string, error) {
 	return processDiffStylish(d, 1), nil
 }
 
-func processDiffStylish(d *diff.Diff, depth int) string {
+func processDiffStylish(d *diff.Tree, depth int) string {
 	indentSize := replacerCount*depth + replacerCount*(depth-1)
 	bracketIndent := strings.Repeat(replacer, indentSize-replacerCount)
 

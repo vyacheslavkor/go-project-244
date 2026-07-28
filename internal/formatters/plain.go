@@ -8,11 +8,11 @@ import (
 
 type plainFormatter struct{}
 
-func (f plainFormatter) Format(d *diff.Diff) (string, error) {
+func (f plainFormatter) Format(d *diff.Tree) (string, error) {
 	return processDiffPlain(d, ""), nil
 }
 
-func processDiffPlain(d *diff.Diff, path string) string {
+func processDiffPlain(d *diff.Tree, path string) string {
 	keys := d.ExtractKeys()
 
 	lines := make([]string, 0, len(keys))

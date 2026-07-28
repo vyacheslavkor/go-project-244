@@ -14,10 +14,10 @@ type Node struct {
 	Status   Status
 	OldValue any
 	Value    any
-	Children *Diff
+	Children *Tree
 }
 
-func NewNode(status Status, oldValue, value any, children *Diff) *Node {
+func NewNode(status Status, oldValue, value any, children *Tree) *Node {
 	return &Node{
 		Status:   status,
 		OldValue: oldValue,

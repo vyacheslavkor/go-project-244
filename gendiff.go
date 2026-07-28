@@ -17,7 +17,7 @@ func GenDiff(filepath1, filepath2, format string) (string, error) {
 		return "", err
 	}
 
-	d := diff.NewDiff(parsed1, parsed2)
+	d := diff.NewTree(parsed1, parsed2)
 	formatted, err := formatter.Format(d)
 	if err != nil {
 		return "", err

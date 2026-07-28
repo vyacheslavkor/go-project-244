@@ -2,12 +2,15 @@ package formatters
 
 import (
 	"code/internal/diff"
+	"errors"
 	"fmt"
 )
 
 type Formatter interface {
 	Format(d *diff.Diff) (string, error)
 }
+
+var ErrInvalidFormat = errors.New("invalid format")
 
 func NewFormatter(format string) (Formatter, error) {
 	switch format {
@@ -19,5 +22,5 @@ func NewFormatter(format string) (Formatter, error) {
 		return jsonFormatter{}, nil
 	}
 
-	return nil, fmt.Errorf("invalid format: %s", format)
+	return nil, fmt.Errorf("%w: %s", ErrInvalidFormat, format)
 }

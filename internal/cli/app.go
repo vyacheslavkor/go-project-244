@@ -2,7 +2,9 @@ package cli
 
 import (
 	"code"
+	"code/internal/formatters"
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/urfave/cli/v3"
@@ -22,8 +24,7 @@ func NewCommand() *cli.Command {
 
 			diff, err := code.GenDiff(file1, file2, cmd.String("format"))
 			if err != nil {
-				// TODO: more detailed error message?
-				return err
+				return returnError(err, cmd)
 			}
 
 			fmt.Fprintln(cmd.Writer, diff)
@@ -55,4 +56,13 @@ func newArgumentsCountError(cmd *cli.Command, expected, got int) error {
 		fmt.Sprintf("incorrect usage: expected %d argument, got %d", expected, got),
 		1,
 	)
+}
+
+func returnError(err error, cmd *cli.Command) error {
+	if errors.Is(err, formatters.ErrInvalidFormat) {
+		cli.ShowAppHelp(cmd)
+		return cli.Exit(err.Error(), 1)
+	}
+
+	return err
 }

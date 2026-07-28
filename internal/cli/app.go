@@ -3,6 +3,7 @@ package cli
 import (
 	"code"
 	"code/internal/formatters"
+	"code/internal/parsers"
 	"context"
 	"errors"
 	"fmt"
@@ -60,10 +61,18 @@ func newArgumentsCountError(cmd *cli.Command, expected, got int) error {
 }
 
 func returnError(err error, cmd *cli.Command) error {
-	if errors.Is(err, formatters.ErrInvalidFormat) {
-		cli.ShowAppHelp(cmd)
-		return cli.Exit(err.Error(), 1)
+	if !isUsageError(err) {
+		return err
 	}
 
-	return err
+	cli.ShowAppHelp(cmd)
+
+	return cli.Exit(fmt.Sprintf("incorrect usage: %v", err), 1)
+}
+
+func isUsageError(err error) bool {
+	return errors.Is(err, formatters.ErrInvalidFormat) ||
+		errors.Is(err, parsers.ErrPathHasNoExtension) ||
+		errors.Is(err, parsers.ErrUnsupportedExtension) ||
+		errors.Is(err, parsers.ErrDifferentFileFormats)
 }

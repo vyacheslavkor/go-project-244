@@ -160,6 +160,8 @@ func TestParseFiles_Errors(t *testing.T) {
 	unsupported := writeTempFile(t, dir, "file.txt", "hello")
 	subdir := filepath.Join(dir, "subdir.json")
 	require.NoError(t, os.Mkdir(subdir, 0o700))
+	subdirNoExt := filepath.Join(dir, "subdir")
+	require.NoError(t, os.Mkdir(subdirNoExt, 0o700))
 
 	unreadable := writeTempFile(t, dir, "unreadable.json", `{"ok":true}`)
 	require.NoError(t, os.Chmod(unreadable, 0o000))
@@ -204,6 +206,12 @@ func TestParseFiles_Errors(t *testing.T) {
 			wantErrs: []error{ErrNotRegularFile},
 		},
 		{
+			name:     "rejects directory path without extension as not a regular file",
+			path1:    subdirNoExt,
+			path2:    validJSON,
+			wantErrs: []error{ErrNotRegularFile},
+		},
+		{
 			name:     "rejects unparsable json content",
 			path1:    invalidJSON,
 			path2:    validJSON,
@@ -225,7 +233,7 @@ func TestParseFiles_Errors(t *testing.T) {
 			name:     "rejects missing file",
 			path1:    filepath.Join(dir, "missing.json"),
 			path2:    validJSON,
-			wantErrs: []error{os.ErrNotExist},
+			wantErrs: []error{ErrFailedToReadFile, os.ErrNotExist},
 		},
 	}
 

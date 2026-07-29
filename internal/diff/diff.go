@@ -34,13 +34,13 @@ func NewTree(parsed1, parsed2 map[string]any) *Tree {
 		val2, has2 := parsed2[k]
 
 		if !has1 {
-			result.Nodes[k] = NewNode(StatusAdded, nil, val2, nil)
+			result.Nodes[k] = &Node{Status: StatusAdded, Value: val2}
 
 			continue
 		}
 
 		if !has2 {
-			result.Nodes[k] = NewNode(StatusRemoved, val1, nil, nil)
+			result.Nodes[k] = &Node{Status: StatusRemoved, OldValue: val1}
 
 			continue
 		}
@@ -49,19 +49,23 @@ func NewTree(parsed1, parsed2 map[string]any) *Tree {
 		map2, isMap2 := val2.(map[string]any)
 
 		if isMap1 && isMap2 {
-			nested := NewTree(map1, map2)
-			result.Nodes[k] = NewNode(StatusNested, val1, val2, nested)
+			result.Nodes[k] = &Node{
+				Status:   StatusNested,
+				OldValue: val1,
+				Value:    val2,
+				Children: NewTree(map1, map2),
+			}
 
 			continue
 		}
 
 		if reflect.DeepEqual(val1, val2) {
-			result.Nodes[k] = NewNode(StatusUnchanged, val1, val2, nil)
+			result.Nodes[k] = &Node{Status: StatusUnchanged, OldValue: val1, Value: val2}
 
 			continue
 		}
 
-		result.Nodes[k] = NewNode(StatusUpdated, val1, val2, nil)
+		result.Nodes[k] = &Node{Status: StatusUpdated, OldValue: val1, Value: val2}
 	}
 
 	return result

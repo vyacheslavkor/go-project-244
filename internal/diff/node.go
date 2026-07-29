@@ -23,13 +23,3 @@ type Node struct {
 	// Children holds nested differences when Status is StatusNested.
 	Children *Tree
 }
-
-// NewNode constructs a difference node with the given status and values.
-func NewNode(status Status, oldValue, value any, children *Tree) *Node {
-	return &Node{
-		Status:   status,
-		OldValue: oldValue,
-		Value:    value,
-		Children: children,
-	}
-}

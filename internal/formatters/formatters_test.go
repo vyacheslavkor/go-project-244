@@ -56,7 +56,7 @@ func TestNewFormatter(t *testing.T) {
 		{name: "creates plain formatter", format: "plain"},
 		{name: "creates json formatter", format: "json"},
 		{name: "rejects unknown format", format: "xml", wantErr: ErrInvalidFormat},
-		{name: "rejects empty format", format: "", wantErr: ErrInvalidFormat},
+		{name: "treats empty format as stylish", format: ""},
 	}
 
 	for _, tc := range testCases {

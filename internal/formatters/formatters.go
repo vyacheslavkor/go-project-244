@@ -6,6 +6,12 @@ import (
 	"fmt"
 )
 
+const (
+	FormatStylish = "stylish"
+	FormatPlain   = "plain"
+	FormatJSON    = "json"
+)
+
 // Formatter formats a difference tree as a string.
 type Formatter interface {
 	// Format renders t according to the formatter implementation.
@@ -16,14 +22,25 @@ type Formatter interface {
 var ErrInvalidFormat = errors.New("invalid format")
 
 // NewFormatter returns a Formatter for the given format name
-// ("stylish", "plain", or "json").
+// ([FormatStylish], [FormatPlain], or [FormatJSON]).
+// An empty format is treated as [FormatStylish].
+//
+// No-diff rendering:
+//   - stylish: pretty-printed empty object "{}"
+//   - plain: empty string
+//   - json: a root JSON object (see json formatter docs); unchanged
+//     nodes are included
 func NewFormatter(format string) (Formatter, error) {
+	if format == "" {
+		format = FormatStylish
+	}
+
 	switch format {
-	case "stylish":
+	case FormatStylish:
 		return stylishFormatter{}, nil
-	case "plain":
+	case FormatPlain:
 		return plainFormatter{}, nil
-	case "json":
+	case FormatJSON:
 		return jsonFormatter{}, nil
 	}
 

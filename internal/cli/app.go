@@ -2,8 +2,6 @@ package cli
 
 import (
 	"code"
-	"code/internal/formatters"
-	"code/internal/parsers"
 	"context"
 	"errors"
 	"fmt"
@@ -68,7 +66,7 @@ Examples:
 				Aliases:     []string{"f"},
 				Usage:       "output format (allowed: stylish, plain, json)",
 				DefaultText: "\"stylish\"",
-				Value:       "stylish",
+				Value:       code.FormatStylish,
 			},
 		},
 	}
@@ -94,8 +92,8 @@ func returnError(err error, cmd *cli.Command) error {
 }
 
 func isUsageError(err error) bool {
-	return errors.Is(err, formatters.ErrInvalidFormat) ||
-		errors.Is(err, parsers.ErrPathHasNoExtension) ||
-		errors.Is(err, parsers.ErrUnsupportedExtension) ||
-		errors.Is(err, parsers.ErrDifferentFileFormats)
+	return errors.Is(err, code.ErrInvalidFormat) ||
+		errors.Is(err, code.ErrPathHasNoExtension) ||
+		errors.Is(err, code.ErrUnsupportedExtension) ||
+		errors.Is(err, code.ErrDifferentFileFormats)
 }

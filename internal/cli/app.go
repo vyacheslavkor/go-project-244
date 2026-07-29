@@ -57,7 +57,7 @@ Examples:
 
 			return nil
 		},
-		OnUsageError: func(ctx context.Context, cmd *cli.Command, err error, isSubcommand bool) error {
+		OnUsageError: func(_ context.Context, cmd *cli.Command, err error, _ bool) error {
 			cli.ShowAppHelp(cmd)
 
 			return cli.Exit(fmt.Sprintf("incorrect usage: %v", err), 1)

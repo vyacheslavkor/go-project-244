@@ -21,6 +21,11 @@ Arguments:
   <filepath1>, <filepath2>  Paths to existing non-empty regular files. Exactly two
                 positional arguments are required.
 
+Input constraints:
+  The root value of each file must be a JSON object or a YAML mapping.
+  Root-level arrays/sequences are rejected.
+  Empty files are rejected.
+
 Input formats:
   JSON  (.json)
   YAML  (.yml, .yaml)
@@ -30,9 +35,16 @@ Mixing .yml and .yaml is allowed; mixing JSON and YAML is not.
 The parser is chosen by file extension (content is not sniffed).
 
 Output formats (--format / -f):
-  stylish  Nested tree with +/- markers (default)
-  plain    Line-oriented human-readable messages
-  json     Machine-readable JSON tree of changes
+  stylish  Nested tree with +/- markers (default).
+           No changes: pretty-printed empty object.
+  plain    Line-oriented human-readable messages (skips unchanged).
+           No changes: empty output (a blank line may still be printed).
+  json     Machine-readable JSON tree of changes.
+           Envelope: {"key":"","status":"root","children":[...]}.
+           Node fields: key, status, old_value?, value?, children?.
+           Node statuses: added, removed, updated, nested, unchanged.
+           Status "root" is JSON-wire only (not a diff-tree status).
+           Unchanged nodes are included.
 
 Examples:
   gendiff file1.json file2.json

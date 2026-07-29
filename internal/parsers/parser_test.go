@@ -43,6 +43,21 @@ func TestJSONParser(t *testing.T) {
 	t.Run("returns error when root value is not an object", func(t *testing.T) {
 		got, err := p.parse([]byte(`[1, 2]`))
 		require.Error(t, err)
+		require.ErrorIs(t, err, ErrInvalidRoot)
+		require.Nil(t, got)
+	})
+
+	t.Run("returns error when root value is null", func(t *testing.T) {
+		got, err := p.parse([]byte(`null`))
+		require.Error(t, err)
+		require.ErrorIs(t, err, ErrInvalidRoot)
+		require.Nil(t, got)
+	})
+
+	t.Run("returns error when root value is a scalar", func(t *testing.T) {
+		got, err := p.parse([]byte(`"hello"`))
+		require.Error(t, err)
+		require.ErrorIs(t, err, ErrInvalidRoot)
 		require.Nil(t, got)
 	})
 }
@@ -78,6 +93,27 @@ nested:
 	t.Run("returns error for malformed content", func(t *testing.T) {
 		got, err := p.parse([]byte(":\n  - broken"))
 		require.Error(t, err)
+		require.Nil(t, got)
+	})
+
+	t.Run("returns error when root value is a sequence", func(t *testing.T) {
+		got, err := p.parse([]byte("- a\n- b\n"))
+		require.Error(t, err)
+		require.ErrorIs(t, err, ErrInvalidRoot)
+		require.Nil(t, got)
+	})
+
+	t.Run("returns error when root value is null", func(t *testing.T) {
+		got, err := p.parse([]byte("null\n"))
+		require.Error(t, err)
+		require.ErrorIs(t, err, ErrInvalidRoot)
+		require.Nil(t, got)
+	})
+
+	t.Run("returns error when root value is a scalar", func(t *testing.T) {
+		got, err := p.parse([]byte("42\n"))
+		require.Error(t, err)
+		require.ErrorIs(t, err, ErrInvalidRoot)
 		require.Nil(t, got)
 	})
 }
@@ -222,6 +258,18 @@ func TestParseFiles_Errors(t *testing.T) {
 			path1:    invalidYML,
 			path2:    validYML,
 			wantErrs: []error{ErrFailedToParseFile},
+		},
+		{
+			name:     "rejects json root array",
+			path1:    writeTempFile(t, dir, "array.json", `[1,2]`),
+			path2:    validJSON,
+			wantErrs: []error{ErrInvalidRoot},
+		},
+		{
+			name:     "rejects yaml root sequence",
+			path1:    writeTempFile(t, dir, "array.yml", "- a\n- b\n"),
+			path2:    validYML,
+			wantErrs: []error{ErrInvalidRoot},
 		},
 		{
 			name:     "rejects unreadable file",

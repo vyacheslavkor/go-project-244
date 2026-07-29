@@ -41,6 +41,8 @@ var (
 	ErrNotRegularFile = errors.New("path is not a regular file")
 	// ErrFileIsEmpty is returned when the file has zero size.
 	ErrFileIsEmpty = errors.New("file is empty")
+	// ErrInvalidRoot is returned when the root value is not a JSON object or YAML mapping.
+	ErrInvalidRoot = errors.New("root value must be a JSON object or a YAML mapping")
 	// ErrFailedToParseFile is returned when file contents cannot be decoded.
 	ErrFailedToParseFile = errors.New("failed to parse file")
 	// ErrFailedToReadFile is returned when the file cannot be read from disk.
@@ -61,7 +63,7 @@ var (
 //
 // On failure, err may wrap one of the package sentinel errors
 // (for example [ErrUnsupportedExtension], [ErrDifferentFileFormats],
-// [ErrFailedToParseFile]).
+// [ErrInvalidRoot], [ErrFailedToParseFile]).
 func ParseFiles(f1, f2 string) (parsed1, parsed2 map[string]any, err error) {
 	if err := validateInputFile(f1); err != nil {
 		return nil, nil, err
@@ -86,17 +88,60 @@ func ParseFiles(f1, f2 string) (parsed1, parsed2 map[string]any, err error) {
 		return nil, nil, err
 	}
 
-	parsed1, err = p.parse(content1)
+	parsed1, err = parseFile(p, f1, content1)
 	if err != nil {
-		return nil, nil, fmt.Errorf("%w: '%s': %w", ErrFailedToParseFile, f1, err)
+		return nil, nil, err
 	}
 
-	parsed2, err = p.parse(content2)
+	parsed2, err = parseFile(p, f2, content2)
 	if err != nil {
-		return nil, nil, fmt.Errorf("%w: '%s': %w", ErrFailedToParseFile, f2, err)
+		return nil, nil, err
 	}
 
 	return parsed1, parsed2, nil
+}
+
+func parseFile(p parser, path string, content []byte) (map[string]any, error) {
+	parsed, err := p.parse(content)
+	if err == nil {
+		return parsed, nil
+	}
+
+	if errors.Is(err, ErrInvalidRoot) {
+		return nil, fmt.Errorf("file '%s': %w", path, err)
+	}
+
+	return nil, fmt.Errorf("%w: '%s': %w", ErrFailedToParseFile, path, err)
+}
+
+func rootMap(root any) (map[string]any, error) {
+	if root == nil {
+		return nil, fmt.Errorf("%w: got null", ErrInvalidRoot)
+	}
+
+	m, ok := root.(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("%w: got %s", ErrInvalidRoot, rootKind(root))
+	}
+
+	return m, nil
+}
+
+func rootKind(root any) string {
+	switch root.(type) {
+	case []any:
+		return "array"
+	case string:
+		return "string"
+	case bool:
+		return "boolean"
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64,
+		float32, float64:
+		return "number"
+	default:
+		return fmt.Sprintf("%T", root)
+	}
 }
 
 func resolveParser(file1, file2 string) (parser, error) {

@@ -23,7 +23,7 @@ Arguments:
 
 Input constraints:
   The root value of each file must be a JSON object or a YAML mapping.
-  Root-level arrays/sequences are rejected.
+  Root-level arrays/sequences, scalars, and null are rejected.
   Empty files are rejected.
 
 Input formats:
@@ -38,13 +38,18 @@ Output formats (--format / -f):
   stylish  Nested tree with +/- markers (default).
            No changes: pretty-printed empty object.
   plain    Line-oriented human-readable messages (skips unchanged).
-           No changes: empty output (a blank line may still be printed).
-  json     Machine-readable JSON tree of changes.
+           No changes: empty output (nothing is printed).
+  json     Compact single-line JSON tree of changes.
            Envelope: {"key":"","status":"root","children":[...]}.
+           Field "children" is omitted when there are no nodes.
            Node fields: key, status, old_value?, value?, children?.
            Node statuses: added, removed, updated, nested, unchanged.
            Status "root" is JSON-wire only (not a diff-tree status).
            Unchanged nodes are included.
+
+Usage errors (wrong args/flags/input contract) print this help on stdout
+and a reason on stderr. Operational errors (missing/unreadable files,
+malformed content) print only the reason on stderr.
 
 Examples:
   gendiff file1.json file2.json
@@ -63,7 +68,9 @@ Examples:
 				return returnError(err, cmd)
 			}
 
-			fmt.Fprintln(cmd.Writer, out)
+			if out != "" {
+				fmt.Fprintln(cmd.Writer, out)
+			}
 
 			return nil
 		},
@@ -107,5 +114,8 @@ func isUsageError(err error) bool {
 	return errors.Is(err, code.ErrInvalidFormat) ||
 		errors.Is(err, code.ErrPathHasNoExtension) ||
 		errors.Is(err, code.ErrUnsupportedExtension) ||
-		errors.Is(err, code.ErrDifferentFileFormats)
+		errors.Is(err, code.ErrDifferentFileFormats) ||
+		errors.Is(err, code.ErrFileIsEmpty) ||
+		errors.Is(err, code.ErrNotRegularFile) ||
+		errors.Is(err, code.ErrInvalidRoot)
 }

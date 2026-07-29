@@ -27,6 +27,21 @@ func TestNewCommand(t *testing.T) {
 	require.NoError(t, os.WriteFile(txt1, []byte("hello"), 0o600))
 	require.NoError(t, os.WriteFile(txt2, []byte("world"), 0o600))
 
+	emptyJSON := filepath.Join(txtDir, "empty.json")
+	require.NoError(t, os.WriteFile(emptyJSON, []byte{}, 0o600))
+
+	arrayJSON := filepath.Join(txtDir, "array.json")
+	require.NoError(t, os.WriteFile(arrayJSON, []byte(`[1,2]`), 0o600))
+
+	arrayYML := filepath.Join(txtDir, "array.yml")
+	require.NoError(t, os.WriteFile(arrayYML, []byte("- a\n- b\n"), 0o600))
+
+	dirAsJSON := filepath.Join(txtDir, "subdir.json")
+	require.NoError(t, os.Mkdir(dirAsJSON, 0o700))
+
+	badJSON := filepath.Join(txtDir, "bad.json")
+	require.NoError(t, os.WriteFile(badJSON, []byte(`{broken`), 0o600))
+
 	expectedStylish := readFixture(t, "expected_stylish.txt")
 	expectedPlain := readFixture(t, "expected_plain.txt")
 	expectedJSON := readFixture(t, "expected_json.txt")
@@ -134,6 +149,36 @@ func TestNewCommand(t *testing.T) {
 				yml2,
 			),
 		},
+		{
+			name:       "rejects empty file as usage error",
+			args:       []string{emptyJSON, json2},
+			wantStdout: help,
+			wantStderr: fmt.Sprintf("incorrect usage: file is empty: '%s'\n", emptyJSON),
+		},
+		{
+			name:       "rejects directory path as usage error",
+			args:       []string{dirAsJSON, json2},
+			wantStdout: help,
+			wantStderr: fmt.Sprintf("incorrect usage: path is not a regular file: '%s'\n", dirAsJSON),
+		},
+		{
+			name:       "rejects json root array as usage error",
+			args:       []string{arrayJSON, json2},
+			wantStdout: help,
+			wantStderr: fmt.Sprintf(
+				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping: got array\n",
+				arrayJSON,
+			),
+		},
+		{
+			name:       "rejects yaml root sequence as usage error",
+			args:       []string{arrayYML, yml2},
+			wantStdout: help,
+			wantStderr: fmt.Sprintf(
+				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping: got array\n",
+				arrayYML,
+			),
+		},
 	}
 
 	operationalErrorCases := []struct {
@@ -145,6 +190,14 @@ func TestNewCommand(t *testing.T) {
 			name:       "rejects missing file without dumping help",
 			args:       []string{"missing1.json", "missing2.json"},
 			wantStderr: "failed to read file: 'missing1.json': stat missing1.json: no such file or directory\n",
+		},
+		{
+			name: "rejects malformed json without dumping help",
+			args: []string{badJSON, json2},
+			wantStderr: fmt.Sprintf(
+				"failed to parse file: '%s': invalid character 'b' looking for beginning of object key string\n",
+				badJSON,
+			),
 		},
 	}
 

@@ -1,0 +1,12 @@
+Property 'added' was added with value: 'hi'
+Property 'added_later' was removed
+Property 'bool_add' was added with value: false
+Property 'complex' was updated. From [complex value] to 'plain'
+Property 'list' was updated. From [complex value] to [complex value]
+Property 'nested.change' was updated. From 'old' to 'new'
+Property 'nested.fresh' was added with value: 2
+Property 'nested.gone' was removed
+Property 'null_val' was updated. From 'not-null' to null
+Property 'number' was updated. From 10 to 20
+Property 'removed' was removed
+Property 'updated' was updated. From 'before' to 'after'

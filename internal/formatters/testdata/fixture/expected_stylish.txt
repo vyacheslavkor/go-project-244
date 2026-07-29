@@ -1,0 +1,26 @@
+{
+  + added: hi
+  - added_later: x
+  + bool_add: false
+  - complex: {
+        inner: v
+    }
+  + complex: plain
+  - list: [a]
+  + list: [a b]
+    nested: {
+      - change: old
+      + change: new
+      + fresh: 2
+      - gone: 1
+        keep: true
+    }
+  - null_val: not-null
+  + null_val: null
+  - number: 10
+  + number: 20
+  - removed: bye
+    unchanged: true
+  - updated: before
+  + updated: after
+}

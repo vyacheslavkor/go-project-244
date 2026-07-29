@@ -1,7 +1,6 @@
 package code
 
 import (
-	"code/internal/formatters"
 	"os"
 	"path/filepath"
 	"testing"
@@ -16,26 +15,33 @@ func TestGenDiff(t *testing.T) {
 	file2 := writeTempFile(t, dir, "b.json", `{"k":"v2"}`)
 
 	t.Run("returns stylish difference for matching json files", func(t *testing.T) {
-		got, err := GenDiff(file1, file2, "stylish")
+		got, err := GenDiff(file1, file2, FormatStylish)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\n  - k: v1\n  + k: v2\n}", got)
 	})
 
 	t.Run("returns plain difference when plain format is requested", func(t *testing.T) {
-		got, err := GenDiff(file1, file2, "plain")
+		got, err := GenDiff(file1, file2, FormatPlain)
 		assert.NoError(t, err)
 		assert.Equal(t, "Property 'k' was updated. From 'v1' to 'v2'", got)
 	})
 
+	t.Run("treats empty format as stylish", func(t *testing.T) {
+		got, err := GenDiff(file1, file2, "")
+		assert.NoError(t, err)
+		assert.Equal(t, "{\n  - k: v1\n  + k: v2\n}", got)
+	})
+
 	t.Run("rejects unknown output format", func(t *testing.T) {
 		got, err := GenDiff(file1, file2, "xml")
-		assert.ErrorIs(t, err, formatters.ErrInvalidFormat)
+		assert.ErrorIs(t, err, ErrInvalidFormat)
 		assert.Empty(t, got)
 	})
 
 	t.Run("rejects missing input file", func(t *testing.T) {
-		got, err := GenDiff(file1, filepath.Join(dir, "missing.json"), "stylish")
+		got, err := GenDiff(file1, filepath.Join(dir, "missing.json"), FormatStylish)
 		assert.ErrorIs(t, err, os.ErrNotExist)
+		assert.ErrorIs(t, err, ErrFailedToReadFile)
 		assert.Empty(t, got)
 	})
 }

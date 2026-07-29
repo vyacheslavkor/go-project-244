@@ -1,3 +1,5 @@
+// Package code provides GenDiff, which compares two configuration files
+// (JSON or YAML) and returns their difference as a formatted string.
 package code
 
 import (

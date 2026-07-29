@@ -7,9 +7,16 @@ import (
 	"strings"
 )
 
+// Stylish indent model (keys share one column at each depth):
+//
+//	indentStep   — spaces added per nesting level for the key column
+//	markerWidth  — width of "+ " / "- " (or padding spaces when unmarked)
+//
+// At depth d, marked lines get (indentStep*d - markerWidth) leading spaces
+// before the marker; unmarked lines get indentStep*d spaces before the key.
 const (
-	replacer      = " "
-	replacerCount = 2
+	indentStep  = 4
+	markerWidth = 2
 )
 
 type stylishFormatter struct{}
@@ -19,9 +26,6 @@ func (f stylishFormatter) Format(t *diff.Tree) (string, error) {
 }
 
 func formatStylish(t *diff.Tree, depth int) string {
-	indentSize := replacerCount*depth + replacerCount*(depth-1)
-	bracketIndent := strings.Repeat(replacer, indentSize-replacerCount)
-
 	keys := t.ExtractKeys()
 
 	lines := make([]string, 0, len(t.Nodes)*2)
@@ -29,35 +33,40 @@ func formatStylish(t *diff.Tree, depth int) string {
 
 	for _, k := range keys {
 		node := t.Nodes[k]
-		indent := getIndent(node, indentSize, replacerCount)
+		prefix := stylishPrefix(node.Status, depth)
 
 		switch node.Status {
 		case diff.StatusRemoved:
-			lines = append(lines, formatLine(indent, "- ", k, formatStylishValue(node.OldValue, depth)))
+			lines = append(lines, formatLine(prefix, "- ", k, formatStylishValue(node.OldValue, depth)))
 		case diff.StatusAdded:
-			lines = append(lines, formatLine(indent, "+ ", k, formatStylishValue(node.Value, depth)))
+			lines = append(lines, formatLine(prefix, "+ ", k, formatStylishValue(node.Value, depth)))
 		case diff.StatusUpdated:
-			removedLine := formatLine(indent, "- ", k, formatStylishValue(node.OldValue, depth))
-			addedLine := formatLine(indent, "+ ", k, formatStylishValue(node.Value, depth))
+			removedLine := formatLine(prefix, "- ", k, formatStylishValue(node.OldValue, depth))
+			addedLine := formatLine(prefix, "+ ", k, formatStylishValue(node.Value, depth))
 			lines = append(lines, fmt.Sprintf("%s\n%s", removedLine, addedLine))
 		case diff.StatusUnchanged:
-			lines = append(lines, formatLine(indent, "", k, formatStylishValue(node.Value, depth)))
+			lines = append(lines, formatLine(prefix, "", k, formatStylishValue(node.Value, depth)))
 		case diff.StatusNested:
-			lines = append(lines, formatLine(indent, "", k, formatStylish(node.Children, depth+1)))
+			lines = append(lines, formatLine(prefix, "", k, formatStylish(node.Children, depth+1)))
 		}
 	}
 
-	lines = append(lines, bracketIndent+"}")
+	lines = append(lines, stylishClosingBrace(depth)+"}")
 
 	return strings.Join(lines, "\n")
 }
 
-func getIndent(node *diff.Node, indentSize, replacerCount int) string {
-	if node.Status == diff.StatusAdded || node.Status == diff.StatusUpdated || node.Status == diff.StatusRemoved {
-		return strings.Repeat(replacer, indentSize)
+func stylishPrefix(status diff.Status, depth int) string {
+	keyColumn := indentStep * depth
+	if status == diff.StatusAdded || status == diff.StatusUpdated || status == diff.StatusRemoved {
+		return strings.Repeat(" ", keyColumn-markerWidth)
 	}
 
-	return strings.Repeat(replacer, indentSize+replacerCount)
+	return strings.Repeat(" ", keyColumn)
+}
+
+func stylishClosingBrace(depth int) string {
+	return strings.Repeat(" ", indentStep*(depth-1))
 }
 
 func formatLine(indent, sign, key, value string) string {
@@ -82,9 +91,6 @@ func formatStylishValue(v any, depth int) string {
 
 func formatMap(m map[string]any, depth int) string {
 	childDepth := depth + 1
-	childIndentSize := replacerCount*childDepth + replacerCount*(childDepth-1)
-	keyIndent := strings.Repeat(replacer, childIndentSize+replacerCount)
-	bracketIndent := strings.Repeat(replacer, childIndentSize-replacerCount)
 
 	keys := make([]string, 0, len(m))
 	for k := range m {
@@ -95,11 +101,12 @@ func formatMap(m map[string]any, depth int) string {
 	lines := make([]string, 0, len(m)+2)
 	lines = append(lines, "{")
 
+	keyIndent := strings.Repeat(" ", indentStep*childDepth)
 	for _, k := range keys {
 		lines = append(lines, formatLine(keyIndent, "", k, formatStylishValue(m[k], childDepth)))
 	}
 
-	lines = append(lines, bracketIndent+"}")
+	lines = append(lines, stylishClosingBrace(childDepth)+"}")
 
 	return strings.Join(lines, "\n")
 }

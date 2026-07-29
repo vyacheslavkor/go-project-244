@@ -32,13 +32,13 @@ var formatParsers = map[format]parser{
 
 var (
 	// ErrPathHasNoExtension is returned when a path has no file extension.
-	ErrPathHasNoExtension = errors.New("cannot extract extension from path")
+	ErrPathHasNoExtension = errors.New("file path has no extension")
 	// ErrDifferentFileFormats is returned when the two files use incompatible formats.
 	ErrDifferentFileFormats = errors.New("files have different formats")
 	// ErrUnsupportedExtension is returned when the file extension is not supported.
 	ErrUnsupportedExtension = errors.New("unsupported extension")
 	// ErrNotRegularFile is returned when the path is not a regular file.
-	ErrNotRegularFile = errors.New("file is not a regular file")
+	ErrNotRegularFile = errors.New("path is not a regular file")
 	// ErrFileIsEmpty is returned when the file has zero size.
 	ErrFileIsEmpty = errors.New("file is empty")
 	// ErrFailedToParseFile is returned when file contents cannot be decoded.
@@ -50,26 +50,38 @@ var (
 // ParseFiles reads and parses two configuration files and returns their
 // contents as nested maps.
 //
-// f1 and f2 must be paths to existing non-empty regular files.
-// Supported formats are JSON (.json) and YAML (.yml, .yaml).
-// Both files must use compatible formats: JSON with JSON, or YAML with YAML
-// (.yml and .yaml may be mixed).
+// f1 and f2 must be paths to existing non-empty regular files whose root
+// value is a JSON object or YAML mapping. Supported formats are JSON
+// (.json) and YAML (.yml, .yaml). Both files must use compatible formats:
+// JSON with JSON, or YAML with YAML (.yml and .yaml may be mixed).
+//
+// Paths are validated as regular non-empty files before extension checks,
+// so directories and missing paths are reported as file errors rather than
+// "no extension" usage errors.
 //
 // On failure, err may wrap one of the package sentinel errors
 // (for example [ErrUnsupportedExtension], [ErrDifferentFileFormats],
 // [ErrFailedToParseFile]).
 func ParseFiles(f1, f2 string) (parsed1, parsed2 map[string]any, err error) {
+	if err := validateInputFile(f1); err != nil {
+		return nil, nil, err
+	}
+
+	if err := validateInputFile(f2); err != nil {
+		return nil, nil, err
+	}
+
 	p, err := resolveParser(f1, f2)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	content1, err := getFileContent(f1)
+	content1, err := readFileContent(f1)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	content2, err := getFileContent(f2)
+	content2, err := readFileContent(f2)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -122,27 +134,30 @@ func fileFormat(path string) (format, error) {
 func extractExt(path string) (string, error) {
 	ext := strings.ToLower(filepath.Ext(path))
 	if ext == "" {
-		return "", fmt.Errorf("%w: %s", ErrPathHasNoExtension, path)
+		return "", fmt.Errorf("%w: '%s'", ErrPathHasNoExtension, path)
 	}
 
 	return ext, nil
 }
 
-func getFileContent(path string) ([]byte, error) {
+func validateInputFile(path string) error {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read path metadata for %s: %w", path, err)
+		return fmt.Errorf("%w: '%s': %w", ErrFailedToReadFile, path, err)
 	}
 
-	mode := fileInfo.Mode()
-	if !mode.IsRegular() {
-		return nil, fmt.Errorf("%w: '%s'", ErrNotRegularFile, path)
+	if !fileInfo.Mode().IsRegular() {
+		return fmt.Errorf("%w: '%s'", ErrNotRegularFile, path)
 	}
 
 	if fileInfo.Size() == 0 {
-		return nil, fmt.Errorf("%w: '%s'", ErrFileIsEmpty, path)
+		return fmt.Errorf("%w: '%s'", ErrFileIsEmpty, path)
 	}
 
+	return nil
+}
+
+func readFileContent(path string) ([]byte, error) {
 	content, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		return nil, fmt.Errorf("%w: '%s': %w", ErrFailedToReadFile, path, err)

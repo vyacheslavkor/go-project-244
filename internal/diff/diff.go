@@ -72,25 +72,18 @@ func NewTree(parsed1, parsed2 map[string]any) *Tree {
 }
 
 func extractKeys(a, b map[string]any) []string {
-	maxLen := len(a) + len(b)
-	uniqueMap := make(map[string]string, maxLen)
+	seen := make(map[string]struct{}, len(a)+len(b))
 
 	for k := range a {
-		_, exists := uniqueMap[k]
-		if !exists {
-			uniqueMap[k] = k
-		}
+		seen[k] = struct{}{}
 	}
 
 	for k := range b {
-		_, exists := uniqueMap[k]
-		if !exists {
-			uniqueMap[k] = k
-		}
+		seen[k] = struct{}{}
 	}
 
-	keys := make([]string, 0, len(uniqueMap))
-	for k := range uniqueMap {
+	keys := make([]string, 0, len(seen))
+	for k := range seen {
 		keys = append(keys, k)
 	}
 

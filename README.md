@@ -41,19 +41,20 @@ The utility expects exactly two arguments: paths to the files being compared. By
 ### Input Rules
 
 - Exactly two positional arguments are required: paths to existing non-empty regular files.
-- The root value of each file must be a JSON object or a YAML mapping. Root-level arrays/sequences are rejected.
+- The root value of each file must be a JSON object or a YAML mapping. Root-level arrays/sequences, scalars, and null are rejected.
 - Empty files are rejected.
 - Supported input formats: JSON (`.json`) and YAML (`.yml`, `.yaml`).
 - Both files must use compatible formats: JSON with JSON, or YAML with YAML. Mixing `.yml` and `.yaml` is allowed; mixing JSON and YAML is not.
 - The parser is chosen by file extension; content is not sniffed.
+- Usage errors (wrong args/flags/input contract) print help on stdout and a reason on stderr. Operational errors (missing/unreadable files, malformed content) print only the reason on stderr.
 
 ### Output Formats
 
 | Format | Description |
 | :--- | :--- |
 | `stylish` | Nested tree with `+` / `-` markers (default). No changes: pretty-printed empty object `{}`. |
-| `plain` | Line-oriented human-readable messages (skips unchanged properties). No changes: empty output. Complex values are shown as `[complex value]`. |
-| `json` | Machine-readable JSON tree of changes. Envelope: `{"key":"","status":"root","children":[...]}`. Node fields: `key`, `status`, `old_value?`, `value?`, `children?`. Node statuses: `added`, `removed`, `updated`, `nested`, `unchanged`. Status `root` is JSON-wire only. Unchanged nodes are included. |
+| `plain` | Line-oriented human-readable messages (skips unchanged properties). No changes: empty output (nothing is printed). Complex values are shown as `[complex value]`. |
+| `json` | Compact single-line JSON tree of changes. Envelope: `{"key":"","status":"root","children":[...]}` (`children` omitted when empty). Node fields: `key`, `status`, `old_value?`, `value?`, `children?`. Node statuses: `added`, `removed`, `updated`, `nested`, `unchanged`. Status `root` is JSON-wire only. Unchanged nodes are included. |
 
 ### Examples
 
@@ -125,36 +126,5 @@ Property 'group3' was added with value: [complex value]
 **3. JSON format:**
 ```bash
 $ ./bin/gendiff --format=json before.json after.json
-{
-  "key": "",
-  "status": "root",
-  "children": [
-    {
-      "key": "follow",
-      "status": "removed",
-      "old_value": false
-    },
-    {
-      "key": "host",
-      "status": "unchanged",
-      "value": "hexlet.io"
-    },
-    {
-      "key": "proxy",
-      "status": "removed",
-      "old_value": "123.234.53.22"
-    },
-    {
-      "key": "timeout",
-      "status": "updated",
-      "old_value": 50,
-      "value": 20
-    },
-    {
-      "key": "verbose",
-      "status": "added",
-      "value": true
-    }
-  ]
-}
+{"key":"","status":"root","children":[{"key":"follow","status":"removed","old_value":false},{"key":"host","status":"unchanged","value":"hexlet.io"},{"key":"proxy","status":"removed","old_value":"123.234.53.22"},{"key":"timeout","status":"updated","old_value":50,"value":20},{"key":"verbose","status":"added","value":true}]}
 ```

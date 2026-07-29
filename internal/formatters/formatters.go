@@ -28,8 +28,8 @@ var ErrInvalidFormat = errors.New("invalid format")
 // No-diff rendering:
 //   - stylish: pretty-printed empty object "{}"
 //   - plain: empty string
-//   - json: a root JSON object (see json formatter docs); unchanged
-//     nodes are included
+//   - json: compact single-line root object; "children" omitted when empty;
+//     unchanged nodes are included when present
 func NewFormatter(format string) (Formatter, error) {
 	if format == "" {
 		format = FormatStylish

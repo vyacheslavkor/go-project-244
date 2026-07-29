@@ -12,13 +12,13 @@ const jsonStatusRoot = "root"
 
 type jsonFormatter struct{}
 
-// JSON output is an object with fields:
+// JSON output is a compact single-line object with fields:
 //
 //	key       string           // property name; empty on the synthetic root
 //	status    string           // "root" | added | removed | updated | nested | unchanged
 //	old_value any, optional    // present for removed/updated
 //	value     any, optional    // present for added/updated/unchanged
-//	children  []object, optional // present for root/nested
+//	children  []object, optional // present for root/nested; omitted when empty
 //
 // Status "root" exists only in this JSON envelope. Tree node statuses
 // ([diff.Status]) never include "root"; the overlap of the other names is

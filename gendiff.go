@@ -23,10 +23,10 @@ import (
 //
 // When there are no differences:
 //   - stylish renders a pretty-printed empty object;
-//   - plain returns an empty string (no property lines);
-//   - json still emits a root object that may list unchanged nodes.
+//   - plain returns an empty string (no property lines; the CLI prints nothing);
+//   - json emits a compact single-line root object; "children" is omitted when empty.
 //
-// JSON output shape (machine-readable format):
+// JSON output shape (compact single-line machine-readable format):
 //
 //	{"key":"","status":"root","children":[...nodes]}
 //
@@ -35,7 +35,7 @@ import (
 // The envelope status "root" is part of the JSON wire format only; it is not
 // a difference-tree node status. Library failures wrap the sentinel errors
 // re-exported from this package (for example [ErrInvalidFormat],
-// [ErrFileIsEmpty], [ErrFailedToParseFile]).
+// [ErrInvalidRoot], [ErrFileIsEmpty], [ErrFailedToParseFile]).
 func GenDiff(filepath1, filepath2, format string) (string, error) {
 	formatter, err := formatters.NewFormatter(format)
 	if err != nil {

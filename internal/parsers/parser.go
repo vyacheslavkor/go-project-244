@@ -5,18 +5,29 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 )
 
-type formatParser interface {
-	parse(content []byte) (parsed map[string]any, err error)
+type parser interface {
+	parse(content []byte) (map[string]any, error)
 }
 
-var extHandlers = map[string]formatParser{
-	".json": jsonParser{},
-	".yml":  yamlParser{},
-	".yaml": yamlParser{},
+type format string
+
+const (
+	formatJSON format = "json"
+	formatYAML format = "yaml"
+)
+
+var extFormats = map[string]format{
+	".json": formatJSON,
+	".yml":  formatYAML,
+	".yaml": formatYAML,
+}
+
+var formatParsers = map[format]parser{
+	formatJSON: jsonParser{},
+	formatYAML: yamlParser{},
 }
 
 var (
@@ -76,76 +87,65 @@ func ParseFiles(f1, f2 string) (parsed1, parsed2 map[string]any, err error) {
 	return parsed1, parsed2, nil
 }
 
-func resolveParser(file1, file2 string) (formatParser, error) {
-	ext1, err := extractExt(file1)
+func resolveParser(file1, file2 string) (parser, error) {
+	format1, err := fileFormat(file1)
 	if err != nil {
 		return nil, err
 	}
 
-	if !isAllowedExt(ext1) {
-		return nil, fmt.Errorf("%w: '%s' for file '%s'", ErrUnsupportedExtension, ext1, file1)
-	}
-
-	ext2, err := extractExt(file2)
+	format2, err := fileFormat(file2)
 	if err != nil {
 		return nil, err
 	}
 
-	if !isAllowedExt(ext2) {
-		return nil, fmt.Errorf("%w: '%s' for file '%s'", ErrUnsupportedExtension, ext2, file2)
-	}
-
-	if !isCompatibleExt(ext1, ext2) {
+	if format1 != format2 {
 		return nil, fmt.Errorf("%w: files '%s' and '%s'", ErrDifferentFileFormats, file1, file2)
 	}
 
-	return extHandlers[ext1], nil
+	return formatParsers[format1], nil
 }
 
-func extractExt(file string) (string, error) {
-	ext := strings.ToLower(filepath.Ext(file))
+func fileFormat(path string) (format, error) {
+	ext, err := extractExt(path)
+	if err != nil {
+		return "", err
+	}
+
+	f, ok := extFormats[ext]
+	if !ok {
+		return "", fmt.Errorf("%w: '%s' for file '%s'", ErrUnsupportedExtension, ext, path)
+	}
+
+	return f, nil
+}
+
+func extractExt(path string) (string, error) {
+	ext := strings.ToLower(filepath.Ext(path))
 	if ext == "" {
-		return "", fmt.Errorf("%w: %s", ErrPathHasNoExtension, file)
+		return "", fmt.Errorf("%w: %s", ErrPathHasNoExtension, path)
 	}
 
 	return ext, nil
 }
 
-func isAllowedExt(ext string) bool {
-	_, ok := extHandlers[ext]
-	return ok
-}
-
-func isCompatibleExt(ext1, ext2 string) bool {
-	compatibleMap := map[string][]string{
-		".json": {".json"},
-		".yml":  {".yml", ".yaml"},
-		".yaml": {".yaml", ".yml"},
-	}
-
-	compatible := compatibleMap[ext1]
-
-	return slices.Contains(compatible, ext2)
-}
-
-func getFileContent(f string) ([]byte, error) {
-	fileInfo, err := os.Stat(f)
+func getFileContent(path string) ([]byte, error) {
+	fileInfo, err := os.Stat(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read path metadata for %s: %w", f, err)
+		return nil, fmt.Errorf("failed to read path metadata for %s: %w", path, err)
 	}
 
 	mode := fileInfo.Mode()
 	if !mode.IsRegular() {
-		return nil, fmt.Errorf("%w: '%s'", ErrNotRegularFile, f)
+		return nil, fmt.Errorf("%w: '%s'", ErrNotRegularFile, path)
 	}
 
 	if fileInfo.Size() == 0 {
-		return nil, fmt.Errorf("%w: '%s'", ErrFileIsEmpty, f)
+		return nil, fmt.Errorf("%w: '%s'", ErrFileIsEmpty, path)
 	}
 
-	content, err := os.ReadFile(filepath.Clean(f))
+	content, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
-		return nil, fmt.Errorf("%w: '%s': %w", ErrFailedToReadFile, f, err)
+		return nil, fmt.Errorf("%w: '%s': %w", ErrFailedToReadFile, path, err)
 	}
 
 	return content, nil

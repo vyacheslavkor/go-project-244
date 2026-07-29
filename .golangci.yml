@@ -72,3 +72,6 @@ linters:
           - errcheck
           - gosec
         source: ShowAppHelp
+      - linters:
+          - funlen
+        path: _test\.go

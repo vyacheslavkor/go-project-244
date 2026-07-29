@@ -21,6 +21,12 @@ func TestNewCommand(t *testing.T) {
 	yml1 := filepath.Join(fixtureDir, "file1.yml")
 	yml2 := filepath.Join(fixtureDir, "file2.yml")
 
+	txtDir := t.TempDir()
+	txt1 := filepath.Join(txtDir, "a.txt")
+	txt2 := filepath.Join(txtDir, "b.txt")
+	require.NoError(t, os.WriteFile(txt1, []byte("hello"), 0o600))
+	require.NoError(t, os.WriteFile(txt2, []byte("world"), 0o600))
+
 	expectedStylish := readFixture(t, "expected_stylish.txt")
 	expectedPlain := readFixture(t, "expected_plain.txt")
 	expectedJSON := readFixture(t, "expected_json.txt")
@@ -114,9 +120,9 @@ func TestNewCommand(t *testing.T) {
 		},
 		{
 			name:       "rejects unsupported input extension",
-			args:       []string{"a.txt", "b.txt"},
+			args:       []string{txt1, txt2},
 			wantStdout: help,
-			wantStderr: "incorrect usage: unsupported extension: '.txt' for file 'a.txt'\n",
+			wantStderr: fmt.Sprintf("incorrect usage: unsupported extension: '.txt' for file '%s'\n", txt1),
 		},
 		{
 			name:       "rejects incompatible input formats",
@@ -130,11 +136,32 @@ func TestNewCommand(t *testing.T) {
 		},
 	}
 
+	operationalErrorCases := []struct {
+		name       string
+		args       []string
+		wantStderr string
+	}{
+		{
+			name:       "rejects missing file without dumping help",
+			args:       []string{"missing1.json", "missing2.json"},
+			wantStderr: "failed to read file: 'missing1.json': stat missing1.json: no such file or directory\n",
+		},
+	}
+
 	for _, tc := range errorCases {
 		t.Run(tc.name, func(t *testing.T) {
 			stdout, stderr, err := runCommand(t, tc.args...)
 			assert.Error(t, err)
 			assert.Equal(t, tc.wantStdout, strings.TrimSpace(stdout))
+			assert.Equal(t, tc.wantStderr, stderr)
+		})
+	}
+
+	for _, tc := range operationalErrorCases {
+		t.Run(tc.name, func(t *testing.T) {
+			stdout, stderr, err := runCommand(t, tc.args...)
+			assert.Error(t, err)
+			assert.Empty(t, stdout)
 			assert.Equal(t, tc.wantStderr, stderr)
 		})
 	}

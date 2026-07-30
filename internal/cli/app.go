@@ -61,9 +61,8 @@ Examples:
 				return newArgumentsCountError(cmd, expectedArgsCount, cmd.Args().Len())
 			}
 
-			file1, file2 := cmd.Args().Get(0), cmd.Args().Get(1)
-
-			out, err := code.GenDiff(file1, file2, cmd.String("format"))
+			beforePath, afterPath := cmd.Args().Get(0), cmd.Args().Get(1)
+			out, err := code.GenDiff(beforePath, afterPath, cmd.String("format"))
 			if err != nil {
 				return returnError(err, cmd)
 			}
@@ -112,10 +111,10 @@ func returnError(err error, cmd *cli.Command) error {
 
 func isUsageError(err error) bool {
 	return errors.Is(err, code.ErrInvalidFormat) ||
-		errors.Is(err, code.ErrPathHasNoExtension) ||
+		errors.Is(err, code.ErrMissingExtension) ||
 		errors.Is(err, code.ErrUnsupportedExtension) ||
-		errors.Is(err, code.ErrDifferentFileFormats) ||
-		errors.Is(err, code.ErrFileIsEmpty) ||
+		errors.Is(err, code.ErrFormatMismatch) ||
+		errors.Is(err, code.ErrEmptyFile) ||
 		errors.Is(err, code.ErrNotRegularFile) ||
 		errors.Is(err, code.ErrInvalidRoot)
 }

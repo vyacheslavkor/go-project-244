@@ -48,7 +48,7 @@ func (f jsonFormatter) Format(t *diff.Tree) (string, error) {
 }
 
 func buildJSONNodes(t *diff.Tree) []jsonNode {
-	keys := t.ExtractKeys()
+	keys := t.Keys()
 
 	nodes := make([]jsonNode, 0, len(keys))
 

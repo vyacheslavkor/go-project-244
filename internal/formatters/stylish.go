@@ -26,7 +26,7 @@ func (f stylishFormatter) Format(t *diff.Tree) (string, error) {
 }
 
 func formatStylish(t *diff.Tree, depth int) string {
-	keys := t.ExtractKeys()
+	keys := t.Keys()
 
 	lines := make([]string, 0, len(t.Nodes)*2)
 	lines = append(lines, "{")

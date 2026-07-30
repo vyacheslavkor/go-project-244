@@ -41,7 +41,7 @@ func TestGenDiff(t *testing.T) {
 	t.Run("rejects missing input file", func(t *testing.T) {
 		got, err := GenDiff(file1, filepath.Join(dir, "missing.json"), FormatStylish)
 		assert.ErrorIs(t, err, os.ErrNotExist)
-		assert.ErrorIs(t, err, ErrFailedToReadFile)
+		assert.ErrorIs(t, err, ErrReadFile)
 		assert.Empty(t, got)
 	})
 }

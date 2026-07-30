@@ -11,7 +11,7 @@ import (
 // GenDiff compares two configuration files and returns their difference
 // as a formatted string.
 //
-// filepath1 and filepath2 must be paths to existing non-empty regular files
+// beforePath and afterPath must be paths to existing non-empty regular files
 // whose root value is a JSON object or YAML mapping (arrays/sequences at the
 // root are rejected). Supported input formats are JSON (.json) and YAML
 // (.yml, .yaml). Both files must use compatible formats: JSON with JSON, or
@@ -35,19 +35,19 @@ import (
 // The envelope status "root" is part of the JSON wire format only; it is not
 // a difference-tree node status. Library failures wrap the sentinel errors
 // re-exported from this package (for example [ErrInvalidFormat],
-// [ErrInvalidRoot], [ErrFileIsEmpty], [ErrFailedToParseFile]).
-func GenDiff(filepath1, filepath2, format string) (string, error) {
+// [ErrInvalidRoot], [ErrEmptyFile], [ErrParseFile]).
+func GenDiff(beforePath, afterPath, format string) (string, error) {
 	formatter, err := formatters.NewFormatter(format)
 	if err != nil {
 		return "", err
 	}
 
-	parsed1, parsed2, err := parsers.ParseFiles(filepath1, filepath2)
+	before, after, err := parsers.ParseFiles(beforePath, afterPath)
 	if err != nil {
 		return "", err
 	}
 
-	t := diff.NewTree(parsed1, parsed2)
+	t := diff.NewTree(before, after)
 	formatted, err := formatter.Format(t)
 	if err != nil {
 		return "", err

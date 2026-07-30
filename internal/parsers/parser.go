@@ -31,29 +31,29 @@ var formatParsers = map[format]parser{
 }
 
 var (
-	// ErrPathHasNoExtension is returned when a path has no file extension.
-	ErrPathHasNoExtension = errors.New("file path has no extension")
-	// ErrDifferentFileFormats is returned when the two files use incompatible formats.
-	ErrDifferentFileFormats = errors.New("files have different formats")
+	// ErrMissingExtension is returned when a path has no file extension.
+	ErrMissingExtension = errors.New("file path has no extension")
+	// ErrFormatMismatch is returned when the two files use incompatible formats.
+	ErrFormatMismatch = errors.New("files have different formats")
 	// ErrUnsupportedExtension is returned when the file extension is not supported.
 	ErrUnsupportedExtension = errors.New("unsupported extension")
 	// ErrNotRegularFile is returned when the path is not a regular file.
 	ErrNotRegularFile = errors.New("path is not a regular file")
-	// ErrFileIsEmpty is returned when the file has zero size.
-	ErrFileIsEmpty = errors.New("file is empty")
+	// ErrEmptyFile is returned when the file has zero size.
+	ErrEmptyFile = errors.New("file is empty")
 	// ErrInvalidRoot is returned when the root value is not a JSON object or YAML mapping.
 	ErrInvalidRoot = errors.New("root value must be a JSON object or a YAML mapping")
-	// ErrFailedToParseFile is returned when file contents cannot be decoded.
-	ErrFailedToParseFile = errors.New("failed to parse file")
-	// ErrFailedToReadFile is returned when the file cannot be read from disk.
-	ErrFailedToReadFile = errors.New("failed to read file")
+	// ErrParseFile is returned when file contents cannot be decoded.
+	ErrParseFile = errors.New("failed to parse file")
+	// ErrReadFile is returned when the file cannot be read from disk.
+	ErrReadFile = errors.New("failed to read file")
 )
 
 // ParseFiles reads and parses two configuration files and returns their
 // contents as nested maps.
 //
-// f1 and f2 must be paths to existing non-empty regular files whose root
-// value is a JSON object or YAML mapping. Supported formats are JSON
+// beforePath and afterPath must point to existing non-empty regular files
+// whose root value is a JSON object or YAML mapping. Supported formats are JSON
 // (.json) and YAML (.yml, .yaml). Both files must use compatible formats:
 // JSON with JSON, or YAML with YAML (.yml and .yaml may be mixed).
 //
@@ -62,43 +62,43 @@ var (
 // "no extension" usage errors.
 //
 // On failure, err may wrap one of the package sentinel errors
-// (for example [ErrUnsupportedExtension], [ErrDifferentFileFormats],
-// [ErrInvalidRoot], [ErrFailedToParseFile]).
-func ParseFiles(f1, f2 string) (parsed1, parsed2 map[string]any, err error) {
-	if err := validateInputFile(f1); err != nil {
+// (for example [ErrUnsupportedExtension], [ErrFormatMismatch],
+// [ErrInvalidRoot], [ErrParseFile]).
+func ParseFiles(beforePath, afterPath string) (before, after map[string]any, err error) {
+	if err := validateInputFile(beforePath); err != nil {
 		return nil, nil, err
 	}
 
-	if err := validateInputFile(f2); err != nil {
+	if err := validateInputFile(afterPath); err != nil {
 		return nil, nil, err
 	}
 
-	p, err := resolveParser(f1, f2)
+	p, err := resolveParser(beforePath, afterPath)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	content1, err := readFileContent(f1)
+	beforeContent, err := readFileContent(beforePath)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	content2, err := readFileContent(f2)
+	afterContent, err := readFileContent(afterPath)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	parsed1, err = parseFile(p, f1, content1)
+	before, err = parseFile(p, beforePath, beforeContent)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	parsed2, err = parseFile(p, f2, content2)
+	after, err = parseFile(p, afterPath, afterContent)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return parsed1, parsed2, nil
+	return before, after, nil
 }
 
 func parseFile(p parser, path string, content []byte) (map[string]any, error) {
@@ -111,7 +111,7 @@ func parseFile(p parser, path string, content []byte) (map[string]any, error) {
 		return nil, fmt.Errorf("file '%s': %w", path, err)
 	}
 
-	return nil, fmt.Errorf("%w: '%s': %w", ErrFailedToParseFile, path, err)
+	return nil, fmt.Errorf("%w: '%s': %w", ErrParseFile, path, err)
 }
 
 func rootMap(root any) (map[string]any, error) {
@@ -144,22 +144,22 @@ func rootKind(root any) string {
 	}
 }
 
-func resolveParser(file1, file2 string) (parser, error) {
-	format1, err := fileFormat(file1)
+func resolveParser(beforePath, afterPath string) (parser, error) {
+	beforeFormat, err := fileFormat(beforePath)
 	if err != nil {
 		return nil, err
 	}
 
-	format2, err := fileFormat(file2)
+	afterFormat, err := fileFormat(afterPath)
 	if err != nil {
 		return nil, err
 	}
 
-	if format1 != format2 {
-		return nil, fmt.Errorf("%w: files '%s' and '%s'", ErrDifferentFileFormats, file1, file2)
+	if beforeFormat != afterFormat {
+		return nil, fmt.Errorf("%w: files '%s' and '%s'", ErrFormatMismatch, beforePath, afterPath)
 	}
 
-	return formatParsers[format1], nil
+	return formatParsers[beforeFormat], nil
 }
 
 func fileFormat(path string) (format, error) {
@@ -179,7 +179,7 @@ func fileFormat(path string) (format, error) {
 func extractExt(path string) (string, error) {
 	ext := strings.ToLower(filepath.Ext(path))
 	if ext == "" {
-		return "", fmt.Errorf("%w: '%s'", ErrPathHasNoExtension, path)
+		return "", fmt.Errorf("%w: '%s'", ErrMissingExtension, path)
 	}
 
 	return ext, nil
@@ -188,7 +188,7 @@ func extractExt(path string) (string, error) {
 func validateInputFile(path string) error {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
-		return fmt.Errorf("%w: '%s': %w", ErrFailedToReadFile, path, err)
+		return fmt.Errorf("%w: '%s': %w", ErrReadFile, path, err)
 	}
 
 	if !fileInfo.Mode().IsRegular() {
@@ -196,7 +196,7 @@ func validateInputFile(path string) error {
 	}
 
 	if fileInfo.Size() == 0 {
-		return fmt.Errorf("%w: '%s'", ErrFileIsEmpty, path)
+		return fmt.Errorf("%w: '%s'", ErrEmptyFile, path)
 	}
 
 	return nil
@@ -205,7 +205,7 @@ func validateInputFile(path string) error {
 func readFileContent(path string) ([]byte, error) {
 	content, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
-		return nil, fmt.Errorf("%w: '%s': %w", ErrFailedToReadFile, path, err)
+		return nil, fmt.Errorf("%w: '%s': %w", ErrReadFile, path, err)
 	}
 
 	return content, nil

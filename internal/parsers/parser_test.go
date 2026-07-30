@@ -215,7 +215,7 @@ func TestParseFiles_Errors(t *testing.T) {
 			name:     "rejects path without extension",
 			path1:    noExt,
 			path2:    validJSON,
-			wantErrs: []error{ErrPathHasNoExtension},
+			wantErrs: []error{ErrMissingExtension},
 		},
 		{
 			name:     "rejects unsupported extension",
@@ -227,13 +227,13 @@ func TestParseFiles_Errors(t *testing.T) {
 			name:     "rejects incompatible formats",
 			path1:    validJSON,
 			path2:    validYML,
-			wantErrs: []error{ErrDifferentFileFormats},
+			wantErrs: []error{ErrFormatMismatch},
 		},
 		{
 			name:     "rejects empty file",
 			path1:    emptyJSON,
 			path2:    validJSON,
-			wantErrs: []error{ErrFileIsEmpty},
+			wantErrs: []error{ErrEmptyFile},
 		},
 		{
 			name:     "rejects directory path",
@@ -251,13 +251,13 @@ func TestParseFiles_Errors(t *testing.T) {
 			name:     "rejects unparsable json content",
 			path1:    invalidJSON,
 			path2:    validJSON,
-			wantErrs: []error{ErrFailedToParseFile},
+			wantErrs: []error{ErrParseFile},
 		},
 		{
 			name:     "rejects unparsable yaml content",
 			path1:    invalidYML,
 			path2:    validYML,
-			wantErrs: []error{ErrFailedToParseFile},
+			wantErrs: []error{ErrParseFile},
 		},
 		{
 			name:     "rejects json root array",
@@ -275,13 +275,13 @@ func TestParseFiles_Errors(t *testing.T) {
 			name:     "rejects unreadable file",
 			path1:    unreadable,
 			path2:    validJSON,
-			wantErrs: []error{ErrFailedToReadFile, os.ErrPermission},
+			wantErrs: []error{ErrReadFile, os.ErrPermission},
 		},
 		{
 			name:     "rejects missing file",
 			path1:    filepath.Join(dir, "missing.json"),
 			path2:    validJSON,
-			wantErrs: []error{ErrFailedToReadFile, os.ErrNotExist},
+			wantErrs: []error{ErrReadFile, os.ErrNotExist},
 		},
 	}
 
@@ -334,12 +334,12 @@ func TestExtractExt(t *testing.T) {
 		{
 			name:    "fails when extension is missing",
 			path:    "noext",
-			wantErr: ErrPathHasNoExtension,
+			wantErr: ErrMissingExtension,
 		},
 		{
 			name:    "fails when nested path has no extension",
 			path:    "dir/noext",
-			wantErr: ErrPathHasNoExtension,
+			wantErr: ErrMissingExtension,
 		},
 	}
 
@@ -393,7 +393,7 @@ func TestFileFormat(t *testing.T) {
 		{
 			name:    "rejects path without extension",
 			path:    "a",
-			wantErr: ErrPathHasNoExtension,
+			wantErr: ErrMissingExtension,
 		},
 	}
 

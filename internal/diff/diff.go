@@ -11,8 +11,8 @@ type Tree struct {
 	Nodes map[string]*Node
 }
 
-// ExtractKeys returns the node keys in lexicographic order.
-func (t *Tree) ExtractKeys() []string {
+// Keys returns the node keys in lexicographic order.
+func (t *Tree) Keys() []string {
 	result := make([]string, 0, len(t.Nodes))
 
 	for k := range t.Nodes {
@@ -24,48 +24,48 @@ func (t *Tree) ExtractKeys() []string {
 	return result
 }
 
-// NewTree builds a difference tree by comparing parsed1 and parsed2.
-func NewTree(parsed1, parsed2 map[string]any) *Tree {
-	keys := extractKeys(parsed1, parsed2)
+// NewTree builds a difference tree by comparing before and after.
+func NewTree(before, after map[string]any) *Tree {
+	keys := extractKeys(before, after)
 	result := &Tree{Nodes: map[string]*Node{}}
 
 	for _, k := range keys {
-		val1, has1 := parsed1[k]
-		val2, has2 := parsed2[k]
+		beforeValue, existsBefore := before[k]
+		afterValue, existsAfter := after[k]
 
-		if !has1 {
-			result.Nodes[k] = &Node{Status: StatusAdded, Value: val2}
-
-			continue
-		}
-
-		if !has2 {
-			result.Nodes[k] = &Node{Status: StatusRemoved, OldValue: val1}
+		if !existsBefore {
+			result.Nodes[k] = &Node{Status: StatusAdded, Value: afterValue}
 
 			continue
 		}
 
-		map1, isMap1 := val1.(map[string]any)
-		map2, isMap2 := val2.(map[string]any)
+		if !existsAfter {
+			result.Nodes[k] = &Node{Status: StatusRemoved, OldValue: beforeValue}
 
-		if isMap1 && isMap2 {
+			continue
+		}
+
+		beforeMap, beforeIsMap := beforeValue.(map[string]any)
+		afterMap, afterIsMap := afterValue.(map[string]any)
+
+		if beforeIsMap && afterIsMap {
 			result.Nodes[k] = &Node{
 				Status:   StatusNested,
-				OldValue: val1,
-				Value:    val2,
-				Children: NewTree(map1, map2),
+				OldValue: beforeValue,
+				Value:    afterValue,
+				Children: NewTree(beforeMap, afterMap),
 			}
 
 			continue
 		}
 
-		if reflect.DeepEqual(val1, val2) {
-			result.Nodes[k] = &Node{Status: StatusUnchanged, OldValue: val1, Value: val2}
+		if reflect.DeepEqual(beforeValue, afterValue) {
+			result.Nodes[k] = &Node{Status: StatusUnchanged, OldValue: beforeValue, Value: afterValue}
 
 			continue
 		}
 
-		result.Nodes[k] = &Node{Status: StatusUpdated, OldValue: val1, Value: val2}
+		result.Nodes[k] = &Node{Status: StatusUpdated, OldValue: beforeValue, Value: afterValue}
 	}
 
 	return result

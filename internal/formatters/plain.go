@@ -13,7 +13,7 @@ func (f plainFormatter) Format(t *diff.Tree) (string, error) {
 }
 
 func formatPlain(t *diff.Tree, path string) string {
-	keys := t.ExtractKeys()
+	keys := t.Keys()
 
 	lines := make([]string, 0, len(keys))
 

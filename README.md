@@ -4,6 +4,10 @@
 
 A command-line utility written in Go that compares two configuration files (JSON or YAML) and prints their difference.
 
+## Demo
+
+[![asciicast](https://asciinema.org/a/1262012.svg)](https://asciinema.org/a/1262012)
+
 ## Installation
 
 You can clone the repository to any convenient local directory on your machine. There are no strict web-server path requirements.

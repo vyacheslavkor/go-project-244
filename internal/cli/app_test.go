@@ -103,6 +103,13 @@ func TestNewCommand(t *testing.T) {
 		})
 	}
 
+	t.Run("plain format prints nothing for identical nested files", func(t *testing.T) {
+		stdout, stderr, err := runCommand(t, json1, json1, "--format=plain")
+		assert.NoError(t, err)
+		assert.Empty(t, stdout)
+		assert.Empty(t, stderr)
+	})
+
 	errorCases := []struct {
 		name       string
 		args       []string

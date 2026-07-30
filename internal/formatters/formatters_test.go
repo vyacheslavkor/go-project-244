@@ -42,8 +42,12 @@ var (
 		},
 		"bool_add": false,
 	}
-	sampleDiffTree = diff.NewTree(sampleBefore, sampleAfter)
-	emptyDiffTree  = &diff.Tree{Nodes: map[string]*diff.Node{}}
+	sampleDiffTree          = diff.NewTree(sampleBefore, sampleAfter)
+	emptyDiffTree           = &diff.Tree{Nodes: map[string]*diff.Node{}}
+	unchangedNestedDiffTree = diff.NewTree(
+		map[string]any{"nested": map[string]any{"key": "value"}},
+		map[string]any{"nested": map[string]any{"key": "value"}},
+	)
 )
 
 func TestNewFormatter(t *testing.T) {
@@ -103,6 +107,12 @@ func TestFormatters(t *testing.T) {
 			name:     "plain renders empty tree as empty string",
 			format:   "plain",
 			tree:     emptyDiffTree,
+			wantFile: "expected_plain_empty.txt",
+		},
+		{
+			name:     "plain renders unchanged nested tree as empty string",
+			format:   "plain",
+			tree:     unchangedNestedDiffTree,
 			wantFile: "expected_plain_empty.txt",
 		},
 		{

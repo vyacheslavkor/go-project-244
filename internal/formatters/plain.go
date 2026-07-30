@@ -30,7 +30,10 @@ func formatPlain(t *diff.Tree, path string) string {
 		case diff.StatusUnchanged:
 			continue
 		case diff.StatusNested:
-			lines = append(lines, formatPlain(node.Children, fmt.Sprintf("%s%s.", path, k)))
+			nested := formatPlain(node.Children, fmt.Sprintf("%s%s.", path, k))
+			if nested != "" {
+				lines = append(lines, nested)
+			}
 		}
 	}
 

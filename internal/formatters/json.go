@@ -5,24 +5,15 @@ import (
 	"encoding/json"
 )
 
-// jsonStatusRoot is a wire-only status for the JSON output root object.
-// It is not a [diff.Status]: the internal difference tree has no root node,
-// while the JSON format wraps children in a synthetic envelope.
-const jsonStatusRoot = "root"
-
 type jsonFormatter struct{}
 
 // JSON output is a compact single-line object with fields:
 //
-//	key       string           // property name; empty on the synthetic root
-//	status    string           // "root" | added | removed | updated | nested | unchanged
+//	key       string           // property name; empty on the root
+//	status    string           // root | added | removed | updated | nested | unchanged
 //	old_value any, optional    // present for removed/updated
 //	value     any, optional    // present for added/updated/unchanged
 //	children  []object, optional // present for root/nested; omitted when empty
-//
-// Status "root" exists only in this JSON envelope. Tree node statuses
-// ([diff.Status]) never include "root"; the overlap of the other names is
-// intentional but the two layers are separate contracts.
 type jsonNode struct {
 	Key      string     `json:"key"`
 	Status   string     `json:"status"`
@@ -31,12 +22,11 @@ type jsonNode struct {
 	Children []jsonNode `json:"children,omitempty"`
 }
 
-func (f jsonFormatter) Format(t *diff.Tree) (string, error) {
-	nodes := buildJSONNodes(t)
+func (f jsonFormatter) Format(t *diff.Node) (string, error) {
 	rootNode := jsonNode{
-		Key:      "",
-		Status:   jsonStatusRoot,
-		Children: nodes,
+		Key:      t.Key,
+		Status:   string(t.Status),
+		Children: buildJSONNodes(t.Children),
 	}
 
 	data, err := json.Marshal(rootNode)
@@ -47,15 +37,12 @@ func (f jsonFormatter) Format(t *diff.Tree) (string, error) {
 	return string(data), nil
 }
 
-func buildJSONNodes(t *diff.Tree) []jsonNode {
-	keys := t.Keys()
+func buildJSONNodes(nodes []*diff.Node) []jsonNode {
+	result := make([]jsonNode, 0, len(nodes))
 
-	nodes := make([]jsonNode, 0, len(keys))
-
-	for _, k := range keys {
-		node := t.Nodes[k]
+	for _, node := range nodes {
 		n := jsonNode{
-			Key:    k,
+			Key:    node.Key,
 			Status: string(node.Status),
 		}
 
@@ -73,8 +60,8 @@ func buildJSONNodes(t *diff.Tree) []jsonNode {
 			n.Children = buildJSONNodes(node.Children)
 		}
 
-		nodes = append(nodes, n)
+		result = append(result, n)
 	}
 
-	return nodes
+	return result
 }

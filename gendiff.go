@@ -31,9 +31,8 @@ import (
 //	{"key":"","status":"root","children":[...nodes]}
 //
 // Each node may include key, status, old_value, value, and children.
-// Node status values are added, removed, updated, nested, and unchanged.
-// The envelope status "root" is part of the JSON wire format only; it is not
-// a difference-tree node status. Library failures wrap the sentinel errors
+// Node status values are root, added, removed, updated, nested, and unchanged.
+// Library failures wrap the sentinel errors
 // re-exported from this package (for example [ErrInvalidFormat],
 // [ErrInvalidRoot], [ErrEmptyFile], [ErrParseFile]).
 func GenDiff(beforePath, afterPath, format string) (string, error) {
@@ -47,7 +46,7 @@ func GenDiff(beforePath, afterPath, format string) (string, error) {
 		return "", err
 	}
 
-	t := diff.NewTree(before, after)
+	t := diff.Build(before, after)
 	formatted, err := formatter.Format(t)
 	if err != nil {
 		return "", err

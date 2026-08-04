@@ -42,9 +42,9 @@ var (
 		},
 		"bool_add": false,
 	}
-	sampleDiffTree          = diff.NewTree(sampleBefore, sampleAfter)
-	emptyDiffTree           = &diff.Tree{Nodes: map[string]*diff.Node{}}
-	unchangedNestedDiffTree = diff.NewTree(
+	sampleDiffTree          = diff.Build(sampleBefore, sampleAfter)
+	emptyDiffTree           = diff.Build(map[string]any{}, map[string]any{})
+	unchangedNestedDiffTree = diff.Build(
 		map[string]any{"nested": map[string]any{"key": "value"}},
 		map[string]any{"nested": map[string]any{"key": "value"}},
 	)
@@ -82,7 +82,7 @@ func TestFormatters(t *testing.T) {
 	testCases := []struct {
 		name     string
 		format   string
-		tree     *diff.Tree
+		tree     *diff.Node
 		wantFile string
 	}{
 		{

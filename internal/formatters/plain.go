@@ -8,29 +8,25 @@ import (
 
 type plainFormatter struct{}
 
-func (f plainFormatter) Format(t *diff.Tree) (string, error) {
-	return formatPlain(t, ""), nil
+func (f plainFormatter) Format(t *diff.Node) (string, error) {
+	return formatPlain(t.Children, ""), nil
 }
 
-func formatPlain(t *diff.Tree, path string) string {
-	keys := t.Keys()
+func formatPlain(nodes []*diff.Node, path string) string {
+	lines := make([]string, 0, len(nodes))
 
-	lines := make([]string, 0, len(keys))
-
-	for _, k := range keys {
-		node := t.Nodes[k]
-
+	for _, node := range nodes {
 		switch node.Status {
 		case diff.StatusAdded:
-			lines = append(lines, fmt.Sprintf("Property '%s%s' was added with value: %s", path, k, formatValueToPlain(node.Value)))
+			lines = append(lines, fmt.Sprintf("Property '%s%s' was added with value: %s", path, node.Key, formatValueToPlain(node.Value)))
 		case diff.StatusRemoved:
-			lines = append(lines, fmt.Sprintf("Property '%s%s' was removed", path, k))
+			lines = append(lines, fmt.Sprintf("Property '%s%s' was removed", path, node.Key))
 		case diff.StatusUpdated:
-			lines = append(lines, fmt.Sprintf("Property '%s%s' was updated. From %s to %s", path, k, formatValueToPlain(node.OldValue), formatValueToPlain(node.Value)))
+			lines = append(lines, fmt.Sprintf("Property '%s%s' was updated. From %s to %s", path, node.Key, formatValueToPlain(node.OldValue), formatValueToPlain(node.Value)))
 		case diff.StatusUnchanged:
 			continue
 		case diff.StatusNested:
-			nested := formatPlain(node.Children, fmt.Sprintf("%s%s.", path, k))
+			nested := formatPlain(node.Children, fmt.Sprintf("%s%s.", path, node.Key))
 			if nested != "" {
 				lines = append(lines, nested)
 			}

@@ -21,33 +21,30 @@ const (
 
 type stylishFormatter struct{}
 
-func (f stylishFormatter) Format(t *diff.Tree) (string, error) {
-	return formatStylish(t, 1), nil
+func (f stylishFormatter) Format(t *diff.Node) (string, error) {
+	return formatStylish(t.Children, 1), nil
 }
 
-func formatStylish(t *diff.Tree, depth int) string {
-	keys := t.Keys()
-
-	lines := make([]string, 0, len(t.Nodes)*2)
+func formatStylish(nodes []*diff.Node, depth int) string {
+	lines := make([]string, 0, len(nodes)*2)
 	lines = append(lines, "{")
 
-	for _, k := range keys {
-		node := t.Nodes[k]
+	for _, node := range nodes {
 		prefix := stylishPrefix(node.Status, depth)
 
 		switch node.Status {
 		case diff.StatusRemoved:
-			lines = append(lines, formatLine(prefix, "- ", k, formatStylishValue(node.OldValue, depth)))
+			lines = append(lines, formatLine(prefix, "- ", node.Key, formatStylishValue(node.OldValue, depth)))
 		case diff.StatusAdded:
-			lines = append(lines, formatLine(prefix, "+ ", k, formatStylishValue(node.Value, depth)))
+			lines = append(lines, formatLine(prefix, "+ ", node.Key, formatStylishValue(node.Value, depth)))
 		case diff.StatusUpdated:
-			removedLine := formatLine(prefix, "- ", k, formatStylishValue(node.OldValue, depth))
-			addedLine := formatLine(prefix, "+ ", k, formatStylishValue(node.Value, depth))
+			removedLine := formatLine(prefix, "- ", node.Key, formatStylishValue(node.OldValue, depth))
+			addedLine := formatLine(prefix, "+ ", node.Key, formatStylishValue(node.Value, depth))
 			lines = append(lines, fmt.Sprintf("%s\n%s", removedLine, addedLine))
 		case diff.StatusUnchanged:
-			lines = append(lines, formatLine(prefix, "", k, formatStylishValue(node.Value, depth)))
+			lines = append(lines, formatLine(prefix, "", node.Key, formatStylishValue(node.Value, depth)))
 		case diff.StatusNested:
-			lines = append(lines, formatLine(prefix, "", k, formatStylish(node.Children, depth+1)))
+			lines = append(lines, formatLine(prefix, "", node.Key, formatStylish(node.Children, depth+1)))
 		}
 	}
 

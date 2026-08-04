@@ -1,0 +1,17 @@
+{
+  "added_later": "x",
+  "removed": "bye",
+  "updated": "before",
+  "unchanged": true,
+  "null_val": "not-null",
+  "number": 10,
+  "list": ["a"],
+  "complex": {
+    "inner": "v"
+  },
+  "nested": {
+    "keep": true,
+    "change": "old",
+    "gone": 1
+  }
+}

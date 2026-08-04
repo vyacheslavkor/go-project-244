@@ -2,6 +2,7 @@ package formatters
 
 import (
 	"code/internal/diff"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,45 +10,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-)
-
-var (
-	sampleBefore = map[string]any{
-		"added_later": "x",
-		"removed":     "bye",
-		"updated":     "before",
-		"unchanged":   true,
-		"null_val":    "not-null",
-		"number":      float64(10),
-		"list":        []any{"a"},
-		"complex":     map[string]any{"inner": "v"},
-		"nested": map[string]any{
-			"keep":   true,
-			"change": "old",
-			"gone":   float64(1),
-		},
-	}
-	sampleAfter = map[string]any{
-		"added":     "hi",
-		"updated":   "after",
-		"unchanged": true,
-		"null_val":  nil,
-		"number":    float64(20),
-		"list":      []any{"a", "b"},
-		"complex":   "plain",
-		"nested": map[string]any{
-			"keep":   true,
-			"change": "new",
-			"fresh":  float64(2),
-		},
-		"bool_add": false,
-	}
-	sampleDiffTree          = diff.Build(sampleBefore, sampleAfter)
-	emptyDiffTree           = diff.Build(map[string]any{}, map[string]any{})
-	unchangedNestedDiffTree = diff.Build(
-		map[string]any{"nested": map[string]any{"key": "value"}},
-		map[string]any{"nested": map[string]any{"key": "value"}},
-	)
 )
 
 func TestNewFormatter(t *testing.T) {
@@ -80,65 +42,90 @@ func TestNewFormatter(t *testing.T) {
 
 func TestFormatters(t *testing.T) {
 	testCases := []struct {
-		name     string
-		format   string
-		tree     *diff.Node
-		wantFile string
+		name       string
+		format     string
+		beforeFile string
+		afterFile  string
+		wantFile   string
 	}{
 		{
-			name:     "stylish renders all statuses nested values and scalars",
-			format:   "stylish",
-			tree:     sampleDiffTree,
-			wantFile: "expected_stylish.txt",
+			name:       "stylish renders all statuses nested values and scalars",
+			format:     "stylish",
+			beforeFile: "sample_before.json",
+			afterFile:  "sample_after.json",
+			wantFile:   "expected_stylish.txt",
 		},
 		{
-			name:     "stylish renders empty tree as braces",
-			format:   "stylish",
-			tree:     emptyDiffTree,
-			wantFile: "expected_stylish_empty.txt",
+			name:       "stylish renders empty tree as braces",
+			format:     "stylish",
+			beforeFile: "empty.json",
+			afterFile:  "empty.json",
+			wantFile:   "expected_stylish_empty.txt",
 		},
 		{
-			name:     "plain renders changed properties and skips unchanged",
-			format:   "plain",
-			tree:     sampleDiffTree,
-			wantFile: "expected_plain.txt",
+			name:       "plain renders changed properties and skips unchanged",
+			format:     "plain",
+			beforeFile: "sample_before.json",
+			afterFile:  "sample_after.json",
+			wantFile:   "expected_plain.txt",
 		},
 		{
-			name:     "plain renders empty tree as empty string",
-			format:   "plain",
-			tree:     emptyDiffTree,
-			wantFile: "expected_plain_empty.txt",
+			name:       "plain renders empty tree as empty string",
+			format:     "plain",
+			beforeFile: "empty.json",
+			afterFile:  "empty.json",
+			wantFile:   "expected_plain_empty.txt",
 		},
 		{
-			name:     "plain renders unchanged nested tree as empty string",
-			format:   "plain",
-			tree:     unchangedNestedDiffTree,
-			wantFile: "expected_plain_empty.txt",
+			name:       "plain renders unchanged nested tree as empty string",
+			format:     "plain",
+			beforeFile: "unchanged_nested.json",
+			afterFile:  "unchanged_nested.json",
+			wantFile:   "expected_plain_empty.txt",
 		},
 		{
-			name:     "json renders root tree with all node statuses",
-			format:   "json",
-			tree:     sampleDiffTree,
-			wantFile: "expected_json.txt",
+			name:       "json renders root tree with all node statuses",
+			format:     "json",
+			beforeFile: "sample_before.json",
+			afterFile:  "sample_after.json",
+			wantFile:   "expected_json.txt",
 		},
 		{
-			name:     "json renders empty tree as root without children",
-			format:   "json",
-			tree:     emptyDiffTree,
-			wantFile: "expected_json_empty.txt",
+			name:       "json renders empty tree as root without children",
+			format:     "json",
+			beforeFile: "empty.json",
+			afterFile:  "empty.json",
+			wantFile:   "expected_json_empty.txt",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			tree := buildDiffTree(t, tc.beforeFile, tc.afterFile)
+
 			formatter, err := NewFormatter(tc.format)
 			require.NoError(t, err)
 
-			got, err := formatter.Format(tc.tree)
+			got, err := formatter.Format(tree)
 			assert.NoError(t, err)
 			assert.Equal(t, readFixture(t, tc.wantFile), got)
 		})
 	}
+}
+
+func buildDiffTree(t *testing.T, beforeFile, afterFile string) *diff.Node {
+	t.Helper()
+
+	return diff.Build(loadMapFixture(t, beforeFile), loadMapFixture(t, afterFile))
+}
+
+func loadMapFixture(t *testing.T, name string) map[string]any {
+	t.Helper()
+
+	var data map[string]any
+	require.NoError(t, json.Unmarshal([]byte(readFixture(t, name)), &data))
+
+	return data
 }
 
 func readFixture(t *testing.T, name string) string {

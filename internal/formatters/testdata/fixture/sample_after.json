@@ -1,0 +1,15 @@
+{
+  "added": "hi",
+  "updated": "after",
+  "unchanged": true,
+  "null_val": null,
+  "number": 20,
+  "list": ["a", "b"],
+  "complex": "plain",
+  "nested": {
+    "keep": true,
+    "change": "new",
+    "fresh": 2
+  },
+  "bool_add": false
+}

@@ -43,8 +43,8 @@ Output formats (--format / -f):
            Envelope: {"key":"","status":"root","children":[...]}.
            Field "children" is omitted when there are no nodes.
            Node fields: key, status, old_value?, value?, children?.
-           Node statuses: added, removed, updated, nested, unchanged.
-           Status "root" is JSON-wire only (not a diff-tree status).
+           Node statuses: root (document root, empty key),
+           added, removed, updated, nested, unchanged.
            Unchanged nodes are included.
 
 Usage errors (wrong args/flags/input contract) print this help on stdout

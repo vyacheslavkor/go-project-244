@@ -31,7 +31,8 @@ import (
 //	{"key":"","status":"root","children":[...nodes]}
 //
 // Each node may include key, status, old_value, value, and children.
-// Node status values are root, added, removed, updated, nested, and unchanged.
+// Node status values are root (document root, empty key), added, removed,
+// updated, nested, and unchanged.
 // Library failures wrap the sentinel errors
 // re-exported from this package (for example [ErrInvalidFormat],
 // [ErrInvalidRoot], [ErrEmptyFile], [ErrParseFile]).

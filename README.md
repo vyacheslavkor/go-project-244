@@ -58,7 +58,7 @@ The utility expects exactly two arguments: paths to the files being compared. By
 | :--- | :--- |
 | `stylish` | Nested tree with `+` / `-` markers (default). No changes: pretty-printed empty object `{}`. |
 | `plain` | Line-oriented human-readable messages (skips unchanged properties). No changes: empty output (nothing is printed). Complex values are shown as `[complex value]`. |
-| `json` | Compact single-line JSON tree of changes. Envelope: `{"key":"","status":"root","children":[...]}` (`children` omitted when empty). Node fields: `key`, `status`, `old_value?`, `value?`, `children?`. Node statuses: `added`, `removed`, `updated`, `nested`, `unchanged`. Status `root` is JSON-wire only. Unchanged nodes are included. |
+| `json` | Compact single-line JSON tree of changes. Envelope: `{"key":"","status":"root","children":[...]}` (`children` omitted when empty). Node fields: `key`, `status`, `old_value?`, `value?`, `children?`. Node statuses: `root` (document root, empty key), `added`, `removed`, `updated`, `nested`, `unchanged`. Unchanged nodes are included. |
 
 ### Examples
 

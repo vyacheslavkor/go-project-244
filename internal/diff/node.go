@@ -10,16 +10,20 @@ const (
 	StatusUpdated   Status = "updated"
 	StatusNested    Status = "nested"
 	StatusUnchanged Status = "unchanged"
+	StatusRoot      Status = "root"
 )
 
-// Node is a single property difference in a [Tree].
+// Node is a difference tree node. The document root uses StatusRoot
+// with an empty Key; property nodes carry Key and optional Children.
 type Node struct {
+	// Key is the property name; empty on the document root.
+	Key string
 	// Status is how the property changed.
 	Status Status
 	// OldValue is the value from the first configuration, if any.
 	OldValue any
 	// Value is the value from the second configuration, if any.
 	Value any
-	// Children holds nested differences when Status is StatusNested.
-	Children *Tree
+	// Children holds nested differences for root and nested nodes.
+	Children []*Node
 }

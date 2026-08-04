@@ -14,14 +14,27 @@ import (
 	urfave "github.com/urfave/cli/v3"
 )
 
-func TestNewCommand(t *testing.T) {
-	fixtureDir := getFixturePath()
-	json1 := filepath.Join(fixtureDir, "file1.json")
-	json2 := filepath.Join(fixtureDir, "file2.json")
-	yml1 := filepath.Join(fixtureDir, "file1.yml")
-	yml2 := filepath.Join(fixtureDir, "file2.yml")
+type commandFixtures struct {
+	json1, json2    string
+	yml1, yml2      string
+	txt1, txt2      string
+	emptyJSON       string
+	arrayJSON       string
+	arrayYML        string
+	dirAsJSON       string
+	badJSON         string
+	expectedStylish string
+	expectedPlain   string
+	expectedJSON    string
+	help            string
+}
 
+func setupCommandFixtures(t *testing.T) commandFixtures {
+	t.Helper()
+
+	fixtureDir := getFixturePath()
 	txtDir := t.TempDir()
+
 	txt1 := filepath.Join(txtDir, "a.txt")
 	txt2 := filepath.Join(txtDir, "b.txt")
 	require.NoError(t, os.WriteFile(txt1, []byte("hello"), 0o600))
@@ -42,12 +55,29 @@ func TestNewCommand(t *testing.T) {
 	badJSON := filepath.Join(txtDir, "bad.json")
 	require.NoError(t, os.WriteFile(badJSON, []byte(`{broken`), 0o600))
 
-	expectedStylish := readFixture(t, "expected_stylish.txt")
-	expectedPlain := readFixture(t, "expected_plain.txt")
-	expectedJSON := readFixture(t, "expected_json.txt")
-	help := readFixture(t, "help.txt")
+	return commandFixtures{
+		json1:           filepath.Join(fixtureDir, "file1.json"),
+		json2:           filepath.Join(fixtureDir, "file2.json"),
+		yml1:            filepath.Join(fixtureDir, "file1.yml"),
+		yml2:            filepath.Join(fixtureDir, "file2.yml"),
+		txt1:            txt1,
+		txt2:            txt2,
+		emptyJSON:       emptyJSON,
+		arrayJSON:       arrayJSON,
+		arrayYML:        arrayYML,
+		dirAsJSON:       dirAsJSON,
+		badJSON:         badJSON,
+		expectedStylish: readFixture(t, "expected_stylish.txt"),
+		expectedPlain:   readFixture(t, "expected_plain.txt"),
+		expectedJSON:    readFixture(t, "expected_json.txt"),
+		help:            readFixture(t, "help.txt"),
+	}
+}
 
-	successCases := []struct {
+func TestNewCommandSuccess(t *testing.T) {
+	f := setupCommandFixtures(t)
+
+	cases := []struct {
 		name       string
 		args       []string
 		wantStdout string
@@ -55,46 +85,51 @@ func TestNewCommand(t *testing.T) {
 		{
 			name:       "prints help when help flag is passed",
 			args:       []string{"--help"},
-			wantStdout: help,
+			wantStdout: f.help,
 		},
 		{
 			name:       "compares json files with default stylish format",
-			args:       []string{json1, json2},
-			wantStdout: expectedStylish,
+			args:       []string{f.json1, f.json2},
+			wantStdout: f.expectedStylish,
 		},
 		{
 			name:       "compares yml files with default stylish format",
-			args:       []string{yml1, yml2},
-			wantStdout: expectedStylish,
+			args:       []string{f.yml1, f.yml2},
+			wantStdout: f.expectedStylish,
 		},
 		{
 			name:       "compares json files with plain format",
-			args:       []string{json1, json2, "--format=plain"},
-			wantStdout: expectedPlain,
+			args:       []string{f.json1, f.json2, "--format=plain"},
+			wantStdout: f.expectedPlain,
 		},
 		{
 			name:       "compares yml files with plain format",
-			args:       []string{yml1, yml2, "--format=plain"},
-			wantStdout: expectedPlain,
+			args:       []string{f.yml1, f.yml2, "--format=plain"},
+			wantStdout: f.expectedPlain,
 		},
 		{
 			name:       "compares json files with json format",
-			args:       []string{json1, json2, "--format=json"},
-			wantStdout: expectedJSON,
+			args:       []string{f.json1, f.json2, "--format=json"},
+			wantStdout: f.expectedJSON,
 		},
 		{
 			name:       "compares yml files with json format",
-			args:       []string{yml1, yml2, "--format=json"},
-			wantStdout: expectedJSON,
+			args:       []string{f.yml1, f.yml2, "--format=json"},
+			wantStdout: f.expectedJSON,
 		},
 		{
 			name:       "accepts short format flag",
-			args:       []string{json1, json2, "-f", "plain"},
-			wantStdout: expectedPlain,
+			args:       []string{f.json1, f.json2, "-f", "plain"},
+			wantStdout: f.expectedPlain,
+		},
+		{
+			name:       "plain format prints nothing for identical nested files",
+			args:       []string{f.json1, f.json1, "--format=plain"},
+			wantStdout: "",
 		},
 	}
 
-	for _, tc := range successCases {
+	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			stdout, stderr, err := runCommand(t, tc.args...)
 			assert.NoError(t, err)
@@ -102,15 +137,12 @@ func TestNewCommand(t *testing.T) {
 			assert.Empty(t, stderr)
 		})
 	}
+}
 
-	t.Run("plain format prints nothing for identical nested files", func(t *testing.T) {
-		stdout, stderr, err := runCommand(t, json1, json1, "--format=plain")
-		assert.NoError(t, err)
-		assert.Empty(t, stdout)
-		assert.Empty(t, stderr)
-	})
+func TestNewCommandUsageErrors(t *testing.T) {
+	f := setupCommandFixtures(t)
 
-	errorCases := []struct {
+	cases := []struct {
 		name       string
 		args       []string
 		wantStdout string
@@ -119,76 +151,89 @@ func TestNewCommand(t *testing.T) {
 		{
 			name:       "rejects invocation without arguments",
 			args:       nil,
-			wantStdout: help,
+			wantStdout: f.help,
 			wantStderr: "incorrect usage: expected 2 arguments, got 0\n",
 		},
 		{
 			name:       "rejects invocation with one argument",
-			args:       []string{json1},
-			wantStdout: help,
+			args:       []string{f.json1},
+			wantStdout: f.help,
 			wantStderr: "incorrect usage: expected 2 arguments, got 1\n",
 		},
 		{
 			name:       "rejects invocation with too many arguments",
-			args:       []string{json1, json2, json1},
-			wantStdout: help,
+			args:       []string{f.json1, f.json2, f.json1},
+			wantStdout: f.help,
 			wantStderr: "incorrect usage: expected 2 arguments, got 3\n",
 		},
 		{
 			name:       "rejects unknown output format",
-			args:       []string{json1, json2, "--format=xml"},
-			wantStdout: help,
+			args:       []string{f.json1, f.json2, "--format=xml"},
+			wantStdout: f.help,
 			wantStderr: "incorrect usage: invalid format: xml\n",
 		},
 		{
 			name:       "rejects unsupported input extension",
-			args:       []string{txt1, txt2},
-			wantStdout: help,
-			wantStderr: fmt.Sprintf("incorrect usage: unsupported extension: '.txt' for file '%s'\n", txt1),
+			args:       []string{f.txt1, f.txt2},
+			wantStdout: f.help,
+			wantStderr: fmt.Sprintf("incorrect usage: unsupported extension: '.txt' for file '%s'\n", f.txt1),
 		},
 		{
 			name:       "rejects incompatible input formats",
-			args:       []string{json1, yml2},
-			wantStdout: help,
+			args:       []string{f.json1, f.yml2},
+			wantStdout: f.help,
 			wantStderr: fmt.Sprintf(
 				"incorrect usage: files have different formats: files '%s' and '%s'\n",
-				json1,
-				yml2,
+				f.json1,
+				f.yml2,
 			),
 		},
 		{
 			name:       "rejects empty file as usage error",
-			args:       []string{emptyJSON, json2},
-			wantStdout: help,
-			wantStderr: fmt.Sprintf("incorrect usage: file is empty: '%s'\n", emptyJSON),
+			args:       []string{f.emptyJSON, f.json2},
+			wantStdout: f.help,
+			wantStderr: fmt.Sprintf("incorrect usage: file is empty: '%s'\n", f.emptyJSON),
 		},
 		{
 			name:       "rejects directory path as usage error",
-			args:       []string{dirAsJSON, json2},
-			wantStdout: help,
-			wantStderr: fmt.Sprintf("incorrect usage: path is not a regular file: '%s'\n", dirAsJSON),
+			args:       []string{f.dirAsJSON, f.json2},
+			wantStdout: f.help,
+			wantStderr: fmt.Sprintf("incorrect usage: path is not a regular file: '%s'\n", f.dirAsJSON),
 		},
 		{
 			name:       "rejects json root array as usage error",
-			args:       []string{arrayJSON, json2},
-			wantStdout: help,
+			args:       []string{f.arrayJSON, f.json2},
+			wantStdout: f.help,
 			wantStderr: fmt.Sprintf(
 				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping: got array\n",
-				arrayJSON,
+				f.arrayJSON,
 			),
 		},
 		{
 			name:       "rejects yaml root sequence as usage error",
-			args:       []string{arrayYML, yml2},
-			wantStdout: help,
+			args:       []string{f.arrayYML, f.yml2},
+			wantStdout: f.help,
 			wantStderr: fmt.Sprintf(
 				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping: got array\n",
-				arrayYML,
+				f.arrayYML,
 			),
 		},
 	}
 
-	operationalErrorCases := []struct {
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			stdout, stderr, err := runCommand(t, tc.args...)
+			assert.Error(t, err)
+			assert.Equal(t, tc.wantStdout, strings.TrimSpace(stdout))
+			assert.Equal(t, tc.wantStderr, stderr)
+		})
+	}
+}
+
+func TestNewCommandOperationalErrors(t *testing.T) {
+	f := setupCommandFixtures(t)
+
+	cases := []struct {
 		name       string
 		args       []string
 		wantStderr string
@@ -200,24 +245,15 @@ func TestNewCommand(t *testing.T) {
 		},
 		{
 			name: "rejects malformed json without dumping help",
-			args: []string{badJSON, json2},
+			args: []string{f.badJSON, f.json2},
 			wantStderr: fmt.Sprintf(
 				"failed to parse file: '%s': invalid character 'b' looking for beginning of object key string\n",
-				badJSON,
+				f.badJSON,
 			),
 		},
 	}
 
-	for _, tc := range errorCases {
-		t.Run(tc.name, func(t *testing.T) {
-			stdout, stderr, err := runCommand(t, tc.args...)
-			assert.Error(t, err)
-			assert.Equal(t, tc.wantStdout, strings.TrimSpace(stdout))
-			assert.Equal(t, tc.wantStderr, stderr)
-		})
-	}
-
-	for _, tc := range operationalErrorCases {
+	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			stdout, stderr, err := runCommand(t, tc.args...)
 			assert.Error(t, err)

@@ -22,11 +22,11 @@ type jsonNode struct {
 	Children []jsonNode `json:"children,omitempty"`
 }
 
-func (f jsonFormatter) Format(t *diff.Node) (string, error) {
+func (f jsonFormatter) Format(root *diff.Node) (string, error) {
 	rootNode := jsonNode{
-		Key:      t.Key,
-		Status:   string(t.Status),
-		Children: buildJSONNodes(t.Children),
+		Key:      root.Key,
+		Status:   string(root.Status),
+		Children: buildJSONNodes(root.Children),
 	}
 
 	data, err := json.Marshal(rootNode)

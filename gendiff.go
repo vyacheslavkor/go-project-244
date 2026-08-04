@@ -46,8 +46,8 @@ func GenDiff(beforePath, afterPath, format string) (string, error) {
 		return "", err
 	}
 
-	t := diff.Build(before, after)
-	formatted, err := formatter.Format(t)
+	root := diff.Build(before, after)
+	formatted, err := formatter.Format(root)
 	if err != nil {
 		return "", err
 	}

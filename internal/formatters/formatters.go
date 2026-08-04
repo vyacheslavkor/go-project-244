@@ -14,8 +14,8 @@ const (
 
 // Formatter formats a difference tree as a string.
 type Formatter interface {
-	// Format renders t according to the formatter implementation.
-	Format(t *diff.Node) (string, error)
+	// Format renders root according to the formatter implementation.
+	Format(root *diff.Node) (string, error)
 }
 
 // ErrInvalidFormat is returned when the requested output format is unknown.

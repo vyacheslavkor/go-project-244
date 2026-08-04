@@ -8,8 +8,8 @@ import (
 
 type plainFormatter struct{}
 
-func (f plainFormatter) Format(t *diff.Node) (string, error) {
-	return formatPlain(t.Children, ""), nil
+func (f plainFormatter) Format(root *diff.Node) (string, error) {
+	return formatPlain(root.Children, ""), nil
 }
 
 func formatPlain(nodes []*diff.Node, path string) string {

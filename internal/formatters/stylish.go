@@ -21,8 +21,8 @@ const (
 
 type stylishFormatter struct{}
 
-func (f stylishFormatter) Format(t *diff.Node) (string, error) {
-	return formatStylish(t.Children, 1), nil
+func (f stylishFormatter) Format(root *diff.Node) (string, error) {
+	return formatStylish(root.Children, 1), nil
 }
 
 func formatStylish(nodes []*diff.Node, depth int) string {

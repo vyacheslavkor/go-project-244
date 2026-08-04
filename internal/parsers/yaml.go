@@ -10,5 +10,12 @@ func (p yamlParser) parse(data []byte) (map[string]any, error) {
 		return nil, err
 	}
 
-	return rootMap(root)
+	m, err := rootMap(root)
+	if err != nil {
+		return nil, err
+	}
+
+	normalizeMap(m)
+
+	return m, nil
 }

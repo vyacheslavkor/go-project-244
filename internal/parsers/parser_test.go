@@ -73,17 +73,18 @@ ok: true
 empty: null
 list:
   - a
-  - 2
+  - 1
+  - 1.0
 nested:
   key: value
 `))
 		require.NoError(t, err)
 		require.Equal(t, map[string]any{
 			"foo":   "bar",
-			"count": 1,
+			"count": float64(1),
 			"ok":    true,
 			"empty": nil,
-			"list":  []any{"a", 2},
+			"list":  []any{"a", float64(1), float64(1)},
 			"nested": map[string]any{
 				"key": "value",
 			},
@@ -148,22 +149,22 @@ func TestParseFiles(t *testing.T) {
 			name:  "parses pair of yml configs",
 			path1: yml1,
 			path2: yml2,
-			want1: map[string]any{"foo": "bar", "n": 1},
-			want2: map[string]any{"foo": "baz", "n": 2},
+			want1: map[string]any{"foo": "bar", "n": float64(1)},
+			want2: map[string]any{"foo": "baz", "n": float64(2)},
 		},
 		{
 			name:  "parses pair of yaml configs",
 			path1: yaml1,
 			path2: yaml2,
-			want1: map[string]any{"foo": "bar", "n": 1},
-			want2: map[string]any{"foo": "baz", "n": 2},
+			want1: map[string]any{"foo": "bar", "n": float64(1)},
+			want2: map[string]any{"foo": "baz", "n": float64(2)},
 		},
 		{
 			name:  "allows mixing yml and yaml extensions",
 			path1: yml1,
 			path2: yaml2,
-			want1: map[string]any{"foo": "bar", "n": 1},
-			want2: map[string]any{"foo": "baz", "n": 2},
+			want1: map[string]any{"foo": "bar", "n": float64(1)},
+			want2: map[string]any{"foo": "baz", "n": float64(2)},
 		},
 		{
 			name:  "treats extension case-insensitively",

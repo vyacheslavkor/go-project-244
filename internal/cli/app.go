@@ -68,7 +68,10 @@ Examples:
 			}
 
 			if out != "" {
-				fmt.Fprintln(cmd.Writer, out)
+				_, err := fmt.Fprintln(cmd.Writer, out)
+				if err != nil {
+					return fmt.Errorf("failed to write output: %w", err)
+				}
 			}
 
 			return nil

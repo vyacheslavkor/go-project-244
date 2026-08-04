@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewTree(t *testing.T) {
+func TestBuild(t *testing.T) {
 	nested1 := map[string]any{
 		"keep":   true,
 		"change": "old",
@@ -56,111 +56,35 @@ func TestNewTree(t *testing.T) {
 		},
 	}
 
-	got := NewTree(parsed1, parsed2)
+	got := Build(parsed1, parsed2)
 
-	expected := &Tree{
-		Nodes: map[string]*Node{
-			"added": {
-				Status: StatusAdded,
-				Value:  "hi",
-			},
-			"map_to_scalar": {
-				Status:   StatusUpdated,
-				OldValue: map[string]any{"inner": "value"},
-				Value:    "plain",
-			},
-			"nested": {
-				Status:   StatusNested,
-				OldValue: nested1,
-				Value:    nested2,
-				Children: &Tree{
-					Nodes: map[string]*Node{
-						"change": {
-							Status:   StatusUpdated,
-							OldValue: "old",
-							Value:    "new",
-						},
-						"fresh": {
-							Status: StatusAdded,
-							Value:  float64(2),
-						},
-						"gone": {
-							Status:   StatusRemoved,
-							OldValue: float64(1),
-						},
-						"keep": {
-							Status:   StatusUnchanged,
-							OldValue: true,
-							Value:    true,
-						},
-					},
-				},
-			},
-			"removed": {
-				Status:   StatusRemoved,
-				OldValue: "bye",
-			},
-			"scalar_to_map": {
-				Status: StatusAdded,
-				Value: map[string]any{
-					"inner": "value",
-				},
-			},
-			"unchanged_bool": {
-				Status:   StatusUnchanged,
-				OldValue: true,
-				Value:    true,
-			},
-			"unchanged_list": {
-				Status:   StatusUnchanged,
-				OldValue: []any{"a", float64(1), false},
-				Value:    []any{"a", float64(1), false},
-			},
-			"unchanged_null": {
-				Status:   StatusUnchanged,
-				OldValue: nil,
-				Value:    nil,
-			},
-			"unchanged_number": {
-				Status:   StatusUnchanged,
-				OldValue: float64(42),
-				Value:    float64(42),
-			},
-			"unchanged_string": {
-				Status:   StatusUnchanged,
-				OldValue: "hello",
-				Value:    "hello",
-			},
-			"updated_bool": {
-				Status:   StatusUpdated,
-				OldValue: false,
-				Value:    true,
-			},
-			"updated_list": {
-				Status:   StatusUpdated,
-				OldValue: []any{"x"},
-				Value:    []any{"x", "y"},
-			},
-			"updated_null": {
-				Status:   StatusUpdated,
-				OldValue: "not-null",
-				Value:    nil,
-			},
-			"updated_number": {
-				Status:   StatusUpdated,
-				OldValue: float64(10),
-				Value:    float64(20),
-			},
-			"updated_string": {
-				Status:   StatusUpdated,
-				OldValue: "before",
-				Value:    "after",
-			},
-			"updated_type": {
-				Status:   StatusUpdated,
-				OldValue: "42",
-				Value:    float64(42),
-			},
+	expected := &Node{
+		Key:      "",
+		Status:   StatusRoot,
+		OldValue: nil,
+		Value:    nil,
+		Children: []*Node{
+			{Key: "added", Status: StatusAdded, Value: "hi"},
+			{Key: "map_to_scalar", Status: StatusUpdated, OldValue: map[string]any{"inner": "value"}, Value: "plain"},
+			{Key: "nested", Status: StatusNested, OldValue: nil, Value: nil, Children: []*Node{
+				{Key: "change", Status: StatusUpdated, OldValue: "old", Value: "new"},
+				{Key: "fresh", Status: StatusAdded, Value: float64(2)},
+				{Key: "gone", Status: StatusRemoved, OldValue: float64(1)},
+				{Key: "keep", Status: StatusUnchanged, OldValue: true, Value: true},
+			}},
+			{Key: "removed", Status: StatusRemoved, OldValue: "bye"},
+			{Key: "scalar_to_map", Status: StatusAdded, Value: map[string]any{"inner": "value"}},
+			{Key: "unchanged_bool", Status: StatusUnchanged, OldValue: true, Value: true},
+			{Key: "unchanged_list", Status: StatusUnchanged, OldValue: []any{"a", float64(1), false}, Value: []any{"a", float64(1), false}},
+			{Key: "unchanged_null", Status: StatusUnchanged, OldValue: nil, Value: nil},
+			{Key: "unchanged_number", Status: StatusUnchanged, OldValue: float64(42), Value: float64(42)},
+			{Key: "unchanged_string", Status: StatusUnchanged, OldValue: "hello", Value: "hello"},
+			{Key: "updated_bool", Status: StatusUpdated, OldValue: false, Value: true},
+			{Key: "updated_list", Status: StatusUpdated, OldValue: []any{"x"}, Value: []any{"x", "y"}},
+			{Key: "updated_null", Status: StatusUpdated, OldValue: "not-null", Value: nil},
+			{Key: "updated_number", Status: StatusUpdated, OldValue: float64(10), Value: float64(20)},
+			{Key: "updated_string", Status: StatusUpdated, OldValue: "before", Value: "after"},
+			{Key: "updated_type", Status: StatusUpdated, OldValue: "42", Value: float64(42)},
 		},
 	}
 

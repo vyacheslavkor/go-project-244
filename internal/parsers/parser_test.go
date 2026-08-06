@@ -117,6 +117,14 @@ nested:
 		require.ErrorIs(t, err, ErrInvalidRoot)
 		require.Nil(t, got)
 	})
+
+	t.Run("the time is parsed as a string", func(t *testing.T) {
+		got, err := p.parse([]byte("released: 2023-01-01\n"))
+		require.NoError(t, err)
+		require.Equal(t, map[string]any{
+			"released": "2023-01-01",
+		}, got)
+	})
 }
 
 func TestParseFiles(t *testing.T) {

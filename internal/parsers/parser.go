@@ -9,7 +9,7 @@ import (
 )
 
 type parser interface {
-	parse(content []byte) (map[string]any, error)
+	parse(content []byte) (any, error)
 }
 
 type format string
@@ -103,15 +103,18 @@ func ParseFiles(beforePath, afterPath string) (before, after map[string]any, err
 
 func parseFile(p parser, path string, content []byte) (map[string]any, error) {
 	parsed, err := p.parse(content)
-	if err == nil {
-		return parsed, nil
+	if err != nil {
+		return nil, fmt.Errorf("%w: '%s': %w", ErrParseFile, path, err)
 	}
 
-	if errors.Is(err, ErrInvalidRoot) {
+	root, err := rootMap(parsed)
+	if err != nil {
 		return nil, fmt.Errorf("file '%s': %w", path, err)
 	}
 
-	return nil, fmt.Errorf("%w: '%s': %w", ErrParseFile, path, err)
+	normalizeMap(root)
+
+	return root, nil
 }
 
 func rootMap(root any) (map[string]any, error) {

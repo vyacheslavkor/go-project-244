@@ -2,8 +2,8 @@ package parsers
 
 import "time"
 
-// normalizeMap normalizes numeric values in a nested map to float64,
-// matching encoding/json so YAML ints and floats compare equally in diffs.
+// normalizeMap converts parser-specific values in a nested map
+// to their common representation for comparison.
 func normalizeMap(m map[string]any) {
 	for k, v := range m {
 		m[k] = normalizeValue(v)
@@ -25,11 +25,16 @@ func normalizeValue(val any) any {
 		}
 		return v
 	case time.Time:
-		if v.Hour() == 0 && v.Minute() == 0 && v.Second() == 0 {
-			return v.Format("2006-01-02")
-		}
-		return v.Format(time.RFC3339)
+		return normalizeTime(v)
 	default:
 		return v
 	}
+}
+
+func normalizeTime(t time.Time) string {
+	if t.Hour() == 0 && t.Minute() == 0 && t.Second() == 0 {
+		return t.Format("2006-01-02")
+	}
+
+	return t.Format(time.RFC3339)
 }

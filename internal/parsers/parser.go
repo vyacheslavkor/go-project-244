@@ -61,6 +61,9 @@ var (
 // so directories and missing paths are reported as file errors rather than
 // "no extension" usage errors.
 //
+// After decoding, values are normalized for comparison: integers to float64,
+// time.Time to a string (date-only as YYYY-MM-DD, otherwise RFC3339).
+//
 // On failure, err may wrap one of the package sentinel errors
 // (for example [ErrUnsupportedExtension], [ErrFormatMismatch],
 // [ErrInvalidRoot], [ErrParseFile]).

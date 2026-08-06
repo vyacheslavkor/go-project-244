@@ -13,7 +13,7 @@ func TestJSONParser(t *testing.T) {
 	p := jsonParser{}
 
 	t.Run("parses nested object with scalar list and null values", func(t *testing.T) {
-		got, err := p.parse([]byte(`{
+		got, err := parseFile(p, "file.json", []byte(`{
 			"foo": "bar",
 			"count": 1,
 			"ok": true,
@@ -35,27 +35,27 @@ func TestJSONParser(t *testing.T) {
 	})
 
 	t.Run("returns error for malformed content", func(t *testing.T) {
-		got, err := p.parse([]byte(`{not-json`))
+		got, err := parseFile(p, "file.json", []byte(`{not-json`))
 		require.Error(t, err)
 		require.Nil(t, got)
 	})
 
 	t.Run("returns error when root value is not an object", func(t *testing.T) {
-		got, err := p.parse([]byte(`[1, 2]`))
+		got, err := parseFile(p, "file.json", []byte(`[1, 2]`))
 		require.Error(t, err)
 		require.ErrorIs(t, err, ErrInvalidRoot)
 		require.Nil(t, got)
 	})
 
 	t.Run("returns error when root value is null", func(t *testing.T) {
-		got, err := p.parse([]byte(`null`))
+		got, err := parseFile(p, "file.json", []byte(`null`))
 		require.Error(t, err)
 		require.ErrorIs(t, err, ErrInvalidRoot)
 		require.Nil(t, got)
 	})
 
 	t.Run("returns error when root value is a scalar", func(t *testing.T) {
-		got, err := p.parse([]byte(`"hello"`))
+		got, err := parseFile(p, "file.json", []byte(`"hello"`))
 		require.Error(t, err)
 		require.ErrorIs(t, err, ErrInvalidRoot)
 		require.Nil(t, got)
@@ -66,7 +66,7 @@ func TestYAMLParser(t *testing.T) {
 	p := yamlParser{}
 
 	t.Run("parses nested object with scalar list and null values", func(t *testing.T) {
-		got, err := p.parse([]byte(`
+		got, err := parseFile(p, "file.yml", []byte(`
 foo: bar
 count: 1
 ok: true
@@ -92,34 +92,34 @@ nested:
 	})
 
 	t.Run("returns error for malformed content", func(t *testing.T) {
-		got, err := p.parse([]byte(":\n  - broken"))
+		got, err := parseFile(p, "file.yml", []byte(":\n  - broken"))
 		require.Error(t, err)
 		require.Nil(t, got)
 	})
 
 	t.Run("returns error when root value is a sequence", func(t *testing.T) {
-		got, err := p.parse([]byte("- a\n- b\n"))
+		got, err := parseFile(p, "file.yml", []byte("- a\n- b\n"))
 		require.Error(t, err)
 		require.ErrorIs(t, err, ErrInvalidRoot)
 		require.Nil(t, got)
 	})
 
 	t.Run("returns error when root value is null", func(t *testing.T) {
-		got, err := p.parse([]byte("null\n"))
+		got, err := parseFile(p, "file.yml", []byte("null\n"))
 		require.Error(t, err)
 		require.ErrorIs(t, err, ErrInvalidRoot)
 		require.Nil(t, got)
 	})
 
 	t.Run("returns error when root value is a scalar", func(t *testing.T) {
-		got, err := p.parse([]byte("42\n"))
+		got, err := parseFile(p, "file.yml", []byte("42\n"))
 		require.Error(t, err)
 		require.ErrorIs(t, err, ErrInvalidRoot)
 		require.Nil(t, got)
 	})
 
 	t.Run("the time is parsed as a string", func(t *testing.T) {
-		got, err := p.parse([]byte("released: 2023-01-01\n"))
+		got, err := parseFile(p, "file.yml", []byte("released: 2023-01-01\n"))
 		require.NoError(t, err)
 		require.Equal(t, map[string]any{
 			"released": "2023-01-01",

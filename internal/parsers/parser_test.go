@@ -4,10 +4,19 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+type fakeParser struct {
+	value any
+}
+
+func (p fakeParser) parse(content []byte) (any, error) {
+	return p.value, nil
+}
 
 func TestJSONParser(t *testing.T) {
 	p := jsonParser{}
@@ -419,6 +428,28 @@ func TestFileFormat(t *testing.T) {
 			assert.Equal(t, tc.want, got)
 		})
 	}
+}
+
+func TestParseFile_normalizesValues(t *testing.T) {
+	val := map[string]any{
+		"uint": uint64(1),
+		"nested": map[string]any{
+			"int":      int(2),
+			"released": time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+		},
+	}
+
+	p := fakeParser{value: val}
+
+	got, err := parseFile(p, "fake", []byte(`{"fake": "fake"}`))
+	require.NoError(t, err)
+	require.Equal(t, map[string]any{
+		"uint": float64(1),
+		"nested": map[string]any{
+			"int":      float64(2),
+			"released": "2023-01-01",
+		},
+	}, got)
 }
 
 func writeTempFile(t *testing.T, dir, name, content string) string {

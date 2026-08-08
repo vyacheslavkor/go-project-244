@@ -127,6 +127,11 @@ func TestNewCommandSuccess(t *testing.T) {
 			args:       []string{f.json1, f.json1, "--format=plain"},
 			wantStdout: "",
 		},
+		{
+			name:       "comparing files with different extensions",
+			args:       []string{f.json1, f.yml2},
+			wantStdout: f.expectedStylish,
+		},
 	}
 
 	for _, tc := range cases {
@@ -178,16 +183,7 @@ func TestNewCommandUsageErrors(t *testing.T) {
 			wantStdout: f.help,
 			wantStderr: fmt.Sprintf("incorrect usage: unsupported extension: '.txt' for file '%s'\n", f.txt1),
 		},
-		{
-			name:       "rejects incompatible input formats",
-			args:       []string{f.json1, f.yml2},
-			wantStdout: f.help,
-			wantStderr: fmt.Sprintf(
-				"incorrect usage: files have different formats: files '%s' and '%s'\n",
-				f.json1,
-				f.yml2,
-			),
-		},
+
 		{
 			name:       "rejects empty file as usage error",
 			args:       []string{f.emptyJSON, f.json2},

@@ -190,6 +190,13 @@ func TestParseFiles(t *testing.T) {
 			want1: map[string]any{"foo": "bar"},
 			want2: map[string]any{"foo": "baz"},
 		},
+		{
+			name:  "parses pair of json and yml configs",
+			path1: json1,
+			path2: yml2,
+			want1: map[string]any{"foo": "bar", "n": float64(1)},
+			want2: map[string]any{"foo": "baz", "n": float64(2)},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -240,12 +247,6 @@ func TestParseFiles_Errors(t *testing.T) {
 			path1:    unsupported,
 			path2:    validJSON,
 			wantErrs: []error{ErrUnsupportedExtension},
-		},
-		{
-			name:     "rejects incompatible formats",
-			path1:    validJSON,
-			path2:    validYML,
-			wantErrs: []error{ErrFormatMismatch},
 		},
 		{
 			name:     "rejects empty file",

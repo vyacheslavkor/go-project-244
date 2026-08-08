@@ -116,7 +116,6 @@ func isUsageError(err error) bool {
 	return errors.Is(err, code.ErrInvalidFormat) ||
 		errors.Is(err, code.ErrMissingExtension) ||
 		errors.Is(err, code.ErrUnsupportedExtension) ||
-		errors.Is(err, code.ErrFormatMismatch) ||
 		errors.Is(err, code.ErrEmptyFile) ||
 		errors.Is(err, code.ErrNotRegularFile) ||
 		errors.Is(err, code.ErrInvalidRoot)

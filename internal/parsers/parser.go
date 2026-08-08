@@ -33,8 +33,6 @@ var formatParsers = map[format]parser{
 var (
 	// ErrMissingExtension is returned when a path has no file extension.
 	ErrMissingExtension = errors.New("file path has no extension")
-	// ErrFormatMismatch is returned when the two files use incompatible formats.
-	ErrFormatMismatch = errors.New("files have different formats")
 	// ErrUnsupportedExtension is returned when the file extension is not supported.
 	ErrUnsupportedExtension = errors.New("unsupported extension")
 	// ErrNotRegularFile is returned when the path is not a regular file.
@@ -76,7 +74,12 @@ func ParseFiles(beforePath, afterPath string) (before, after map[string]any, err
 		return nil, nil, err
 	}
 
-	p, err := resolveParser(beforePath, afterPath)
+	beforeParser, err := resolveParser(beforePath)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	afterParser, err := resolveParser(afterPath)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -91,12 +94,12 @@ func ParseFiles(beforePath, afterPath string) (before, after map[string]any, err
 		return nil, nil, err
 	}
 
-	before, err = parseFile(p, beforePath, beforeContent)
+	before, err = parseFile(beforeParser, beforePath, beforeContent)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	after, err = parseFile(p, afterPath, afterContent)
+	after, err = parseFile(afterParser, afterPath, afterContent)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -150,22 +153,13 @@ func rootKind(root any) string {
 	}
 }
 
-func resolveParser(beforePath, afterPath string) (parser, error) {
-	beforeFormat, err := fileFormat(beforePath)
+func resolveParser(filePath string) (parser, error) {
+	format, err := fileFormat(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	afterFormat, err := fileFormat(afterPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if beforeFormat != afterFormat {
-		return nil, fmt.Errorf("%w: files '%s' and '%s'", ErrFormatMismatch, beforePath, afterPath)
-	}
-
-	return formatParsers[beforeFormat], nil
+	return formatParsers[format], nil
 }
 
 func fileFormat(path string) (format, error) {

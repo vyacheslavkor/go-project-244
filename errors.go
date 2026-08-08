@@ -10,8 +10,6 @@ var (
 	ErrInvalidFormat = formatters.ErrInvalidFormat
 	// ErrMissingExtension is returned when a path has no file extension.
 	ErrMissingExtension = parsers.ErrMissingExtension
-	// ErrFormatMismatch is returned when the two files use incompatible formats.
-	ErrFormatMismatch = parsers.ErrFormatMismatch
 	// ErrUnsupportedExtension is returned when the file extension is not supported.
 	ErrUnsupportedExtension = parsers.ErrUnsupportedExtension
 	// ErrNotRegularFile is returned when the path is not a regular file.

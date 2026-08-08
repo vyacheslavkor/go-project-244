@@ -377,7 +377,7 @@ func TestExtractExt(t *testing.T) {
 	}
 }
 
-func TestFileFormat(t *testing.T) {
+func TestDetectFormat(t *testing.T) {
 	testCases := []struct {
 		name    string
 		path    string
@@ -418,7 +418,7 @@ func TestFileFormat(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := fileFormat(tc.path)
+			got, err := detectFormat(tc.path)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				assert.Empty(t, got)

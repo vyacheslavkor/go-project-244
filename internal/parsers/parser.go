@@ -93,7 +93,7 @@ func parseFile(p parser, path string, content []byte) (map[string]any, error) {
 		return nil, fmt.Errorf("%w: '%s': %w", ErrParseFile, path, err)
 	}
 
-	root, err := rootMap(parsed)
+	root, err := extractRootMap(parsed)
 	if err != nil {
 		return nil, fmt.Errorf("file '%s': %w", path, err)
 	}
@@ -103,20 +103,20 @@ func parseFile(p parser, path string, content []byte) (map[string]any, error) {
 	return root, nil
 }
 
-func rootMap(root any) (map[string]any, error) {
+func extractRootMap(root any) (map[string]any, error) {
 	if root == nil {
 		return nil, fmt.Errorf("%w: got null", ErrInvalidRoot)
 	}
 
 	m, ok := root.(map[string]any)
 	if !ok {
-		return nil, fmt.Errorf("%w: got %s", ErrInvalidRoot, rootKind(root))
+		return nil, fmt.Errorf("%w: got %s", ErrInvalidRoot, describeRootKind(root))
 	}
 
 	return m, nil
 }
 
-func rootKind(root any) string {
+func describeRootKind(root any) string {
 	switch root.(type) {
 	case []any:
 		return "array"
@@ -134,7 +134,7 @@ func rootKind(root any) string {
 }
 
 func resolveParser(filePath string) (parser, error) {
-	format, err := fileFormat(filePath)
+	format, err := detectFormat(filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func resolveParser(filePath string) (parser, error) {
 	return formatParsers[format], nil
 }
 
-func fileFormat(path string) (format, error) {
+func detectFormat(path string) (format, error) {
 	ext, err := extractExt(path)
 	if err != nil {
 		return "", err

@@ -13,7 +13,7 @@ func Build(before, after map[string]any) *Node {
 }
 
 func buildChildren(before, after map[string]any) []*Node {
-	keys := extractKeys(before, after)
+	keys := sortedUnionKeys(before, after)
 	children := make([]*Node, 0, len(keys))
 
 	for _, k := range keys {
@@ -57,7 +57,7 @@ func buildChildren(before, after map[string]any) []*Node {
 	return children
 }
 
-func extractKeys(a, b map[string]any) []string {
+func sortedUnionKeys(a, b map[string]any) []string {
 	seen := make(map[string]struct{}, len(a)+len(b))
 
 	for k := range a {

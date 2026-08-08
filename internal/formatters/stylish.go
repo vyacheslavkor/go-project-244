@@ -79,11 +79,30 @@ func toString(val any) string {
 }
 
 func formatStylishValue(v any, depth int) string {
-	if m, isMap := v.(map[string]any); isMap {
-		return formatMap(m, depth)
+	switch value := v.(type) {
+	case map[string]any:
+		return formatMap(value, depth)
+	case []any:
+		return formatSlice(value, depth)
+	default:
+		return toString(v)
+	}
+}
+
+func formatSlice(items []any, depth int) string {
+	childDepth := depth + 1
+
+	lines := make([]string, 0, len(items)+2)
+	lines = append(lines, "[")
+
+	itemIndent := strings.Repeat(" ", indentStep*childDepth)
+	for _, item := range items {
+		lines = append(lines, itemIndent+formatStylishValue(item, childDepth))
 	}
 
-	return toString(v)
+	lines = append(lines, stylishClosingBrace(childDepth)+"]")
+
+	return strings.Join(lines, "\n")
 }
 
 func formatMap(m map[string]any, depth int) string {

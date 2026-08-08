@@ -5,7 +5,7 @@
   "unchanged": true,
   "null_val": "not-null",
   "number": 10,
-  "list": ["a"],
+  "list": ["a", {"x": 1}],
   "complex": {
     "inner": "v"
   },

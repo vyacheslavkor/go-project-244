@@ -6,8 +6,19 @@
         inner: v
     }
   + complex: plain
-  - list: [a]
-  + list: [a b]
+  - list: [
+        a
+        {
+            x: 1
+        }
+    ]
+  + list: [
+        a
+        b
+        {
+            x: 2
+        }
+    ]
     nested: {
       - change: old
       + change: new

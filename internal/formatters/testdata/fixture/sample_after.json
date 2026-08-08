@@ -4,7 +4,7 @@
   "unchanged": true,
   "null_val": null,
   "number": 20,
-  "list": ["a", "b"],
+  "list": ["a", "b", {"x": 2}],
   "complex": "plain",
   "nested": {
     "keep": true,

@@ -57,8 +57,6 @@ linters:
     errcheck:
       check-type-assertions: true
       check-blank: true
-      exclude-functions:
-        - fmt.Fprintln
     nolintlint:
       require-explanation: true
       require-specific: true

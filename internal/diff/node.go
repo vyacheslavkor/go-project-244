@@ -22,8 +22,8 @@ type Node struct {
 	Status Status
 	// OldValue is the value from the first configuration, if any.
 	OldValue any
-	// Value is the value from the second configuration, if any.
-	Value any
+	// NewValue is the value from the second configuration, if any.
+	NewValue any
 	// Children holds nested differences for root and nested nodes.
 	Children []*Node
 }

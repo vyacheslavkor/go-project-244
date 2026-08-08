@@ -36,13 +36,13 @@ func formatStylish(nodes []*diff.Node, depth int) string {
 		case diff.StatusRemoved:
 			lines = append(lines, formatLine(prefix, "- ", node.Key, formatStylishValue(node.OldValue, depth)))
 		case diff.StatusAdded:
-			lines = append(lines, formatLine(prefix, "+ ", node.Key, formatStylishValue(node.Value, depth)))
+			lines = append(lines, formatLine(prefix, "+ ", node.Key, formatStylishValue(node.NewValue, depth)))
 		case diff.StatusUpdated:
 			removedLine := formatLine(prefix, "- ", node.Key, formatStylishValue(node.OldValue, depth))
-			addedLine := formatLine(prefix, "+ ", node.Key, formatStylishValue(node.Value, depth))
+			addedLine := formatLine(prefix, "+ ", node.Key, formatStylishValue(node.NewValue, depth))
 			lines = append(lines, fmt.Sprintf("%s\n%s", removedLine, addedLine))
 		case diff.StatusUnchanged:
-			lines = append(lines, formatLine(prefix, "", node.Key, formatStylishValue(node.Value, depth)))
+			lines = append(lines, formatLine(prefix, "", node.Key, formatStylishValue(node.NewValue, depth)))
 		case diff.StatusNested:
 			lines = append(lines, formatLine(prefix, "", node.Key, formatStylish(node.Children, depth+1)))
 		}

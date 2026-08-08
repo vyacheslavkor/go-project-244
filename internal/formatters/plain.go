@@ -18,11 +18,11 @@ func formatPlain(nodes []*diff.Node, path string) string {
 	for _, node := range nodes {
 		switch node.Status {
 		case diff.StatusAdded:
-			lines = append(lines, fmt.Sprintf("Property '%s%s' was added with value: %s", path, node.Key, formatValueToPlain(node.Value)))
+			lines = append(lines, fmt.Sprintf("Property '%s%s' was added with value: %s", path, node.Key, formatValueToPlain(node.NewValue)))
 		case diff.StatusRemoved:
 			lines = append(lines, fmt.Sprintf("Property '%s%s' was removed", path, node.Key))
 		case diff.StatusUpdated:
-			lines = append(lines, fmt.Sprintf("Property '%s%s' was updated. From %s to %s", path, node.Key, formatValueToPlain(node.OldValue), formatValueToPlain(node.Value)))
+			lines = append(lines, fmt.Sprintf("Property '%s%s' was updated. From %s to %s", path, node.Key, formatValueToPlain(node.OldValue), formatValueToPlain(node.NewValue)))
 		case diff.StatusUnchanged:
 			continue
 		case diff.StatusNested:

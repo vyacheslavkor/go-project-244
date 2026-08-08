@@ -48,14 +48,14 @@ func buildJSONNodes(nodes []*diff.Node) []jsonNode {
 
 		switch node.Status {
 		case diff.StatusAdded:
-			n.Value = &node.Value
+			n.Value = &node.NewValue
 		case diff.StatusRemoved:
 			n.OldValue = &node.OldValue
 		case diff.StatusUpdated:
-			n.Value = &node.Value
+			n.Value = &node.NewValue
 			n.OldValue = &node.OldValue
 		case diff.StatusUnchanged:
-			n.Value = &node.Value
+			n.Value = &node.NewValue
 		case diff.StatusNested:
 			n.Children = buildJSONNodes(node.Children)
 		}

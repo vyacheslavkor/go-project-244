@@ -21,7 +21,7 @@ func buildChildren(before, after map[string]any) []*Node {
 		afterValue, existsAfter := after[k]
 
 		if !existsBefore {
-			children = append(children, &Node{Key: k, Status: StatusAdded, Value: afterValue})
+			children = append(children, &Node{Key: k, Status: StatusAdded, NewValue: afterValue})
 
 			continue
 		}
@@ -46,12 +46,12 @@ func buildChildren(before, after map[string]any) []*Node {
 		}
 
 		if reflect.DeepEqual(beforeValue, afterValue) {
-			children = append(children, &Node{Key: k, Status: StatusUnchanged, OldValue: beforeValue, Value: afterValue})
+			children = append(children, &Node{Key: k, Status: StatusUnchanged, OldValue: beforeValue, NewValue: afterValue})
 
 			continue
 		}
 
-		children = append(children, &Node{Key: k, Status: StatusUpdated, OldValue: beforeValue, Value: afterValue})
+		children = append(children, &Node{Key: k, Status: StatusUpdated, OldValue: beforeValue, NewValue: afterValue})
 	}
 
 	return children

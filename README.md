@@ -27,6 +27,17 @@ cd go-project-244
 make build
 ```
 
+## Development
+
+| Command | Description |
+| :--- | :--- |
+| `make build` | Build the `bin/gendiff` executable. |
+| `make help` | Show the CLI help screen. |
+| `make test` | Run the full test suite. |
+| `make lint` | Run `golangci-lint` over the project. |
+| `make lint-fix` | Run `golangci-lint` with safe autofixes. |
+| `make coverage` | Run tests and write `coverage.out`. |
+
 ## Usage
 
 The utility expects exactly two arguments: paths to the files being compared. By default, it prints the difference in `stylish` format.

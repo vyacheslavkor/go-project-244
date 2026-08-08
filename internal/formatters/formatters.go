@@ -2,7 +2,6 @@ package formatters
 
 import (
 	"code/internal/diff"
-	"errors"
 	"fmt"
 )
 
@@ -17,9 +16,6 @@ type Formatter interface {
 	// Format renders root according to the formatter implementation.
 	Format(root *diff.Node) (string, error)
 }
-
-// ErrInvalidFormat is returned when the requested output format is unknown.
-var ErrInvalidFormat = errors.New("invalid format")
 
 // NewFormatter returns a Formatter for the given format name
 // ([FormatStylish], [FormatPlain], or [FormatJSON]).

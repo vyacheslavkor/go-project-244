@@ -52,8 +52,7 @@ var (
 //
 // beforePath and afterPath must point to existing non-empty regular files
 // whose root value is a JSON object or YAML mapping. Supported formats are JSON
-// (.json) and YAML (.yml, .yaml). Both files must use compatible formats:
-// JSON with JSON, or YAML with YAML (.yml and .yaml may be mixed).
+// (.json) and YAML (.yml, .yaml). The files can use different formats.
 //
 // Paths are validated as regular non-empty files before extension checks,
 // so directories and missing paths are reported as file errors rather than
@@ -63,8 +62,7 @@ var (
 // time.Time to a string (date-only as YYYY-MM-DD, otherwise RFC3339).
 //
 // On failure, err may wrap one of the package sentinel errors
-// (for example [ErrUnsupportedExtension], [ErrFormatMismatch],
-// [ErrInvalidRoot], [ErrParseFile]).
+// (for example [ErrUnsupportedExtension], [ErrInvalidRoot], [ErrParseFile]).
 func ParseFiles(beforePath, afterPath string) (before, after map[string]any, err error) {
 	if err := validateInputFile(beforePath); err != nil {
 		return nil, nil, err

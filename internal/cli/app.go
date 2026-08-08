@@ -30,8 +30,6 @@ Input formats:
   JSON  (.json)
   YAML  (.yml, .yaml)
 
-Both files must use compatible formats: JSON with JSON, or YAML with YAML.
-Mixing .yml and .yaml is allowed; mixing JSON and YAML is not.
 The parser is chosen by file extension (content is not sniffed).
 
 Output formats (--format / -f):

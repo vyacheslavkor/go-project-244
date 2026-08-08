@@ -48,7 +48,7 @@ The utility expects exactly two arguments: paths to the files being compared. By
 - The root value of each file must be a JSON object or a YAML mapping. Root-level arrays/sequences, scalars, and null are rejected.
 - Empty files are rejected.
 - Supported input formats: JSON (`.json`) and YAML (`.yml`, `.yaml`).
-- Both files must use compatible formats: JSON with JSON, or YAML with YAML. Mixing `.yml` and `.yaml` is allowed; mixing JSON and YAML is not.
+- JSON and YAML may be mixed; each file is parsed by its own extension.
 - The parser is chosen by file extension; content is not sniffed.
 - Usage errors (wrong args/flags/input contract) print help on stdout and a reason on stderr. Operational errors (missing/unreadable files, malformed content) print only the reason on stderr.
 

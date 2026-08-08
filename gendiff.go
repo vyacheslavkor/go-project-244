@@ -14,9 +14,8 @@ import (
 // beforePath and afterPath must be paths to existing non-empty regular files
 // whose root value is a JSON object or YAML mapping (arrays/sequences at the
 // root are rejected). Supported input formats are JSON (.json) and YAML
-// (.yml, .yaml). Both files must use compatible formats: JSON with JSON, or
-// YAML with YAML (.yml and .yaml may be mixed). The parser is chosen by file
-// extension; content is not sniffed.
+// (.yml, .yaml). The files can use different formats. The parser is chosen by
+// file extension; content is not sniffed.
 //
 // format selects the output style: [FormatStylish], [FormatPlain], or
 // [FormatJSON]. An empty format is treated as [FormatStylish].

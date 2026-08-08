@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// Format names.
 const (
 	FormatStylish = "stylish"
 	FormatPlain   = "plain"

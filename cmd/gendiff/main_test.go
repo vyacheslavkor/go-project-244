@@ -63,7 +63,7 @@ func runBinary(t *testing.T, ctx context.Context, compiledPath string, args ...s
 	t.Helper()
 
 	//nolint:gosec // G204: paths are controlled by the test, no risk of command injection
-	cmd := exec.CommandContext(ctx, compiledPath, args...)
+	cmd := exec.CommandContext(ctx, filepath.Clean(compiledPath), args...)
 
 	var outBuf, errBuf bytes.Buffer
 	cmd.Stdout = &outBuf

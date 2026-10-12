@@ -464,6 +464,50 @@ func TestParseFile_normalizesValues(t *testing.T) {
 			"2023-01-01 15:04:05",
 		},
 	}, got)
+
+	t.Run("keeps every part of a timestamp that tells two values apart", func(t *testing.T) {
+		testCases := []struct {
+			name string
+			val  time.Time
+			want string
+		}{
+			{
+				name: "keeps fractional seconds",
+				val:  time.Date(2023, 1, 1, 10, 20, 30, 500_000_000, time.UTC),
+				want: "2023-01-01T10:20:30.5Z",
+			},
+			{
+				name: "tells a different fraction of a second apart",
+				val:  time.Date(2023, 1, 1, 10, 20, 30, 900_000_000, time.UTC),
+				want: "2023-01-01T10:20:30.9Z",
+			},
+			{
+				name: "keeps a zone offset at midnight",
+				val:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.FixedZone("", 3*60*60)),
+				want: "2023-01-01T00:00:00+03:00",
+			},
+			{
+				name: "keeps a zone offset together with fractional seconds",
+				val:  time.Date(2023, 1, 1, 10, 20, 30, 500_000_000, time.FixedZone("", 3*60*60)),
+				want: "2023-01-01T10:20:30.5+03:00",
+			},
+			{
+				name: "shortens midnight in utc to a date, the way a json string spells it",
+				val:  time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+				want: "2023-01-01",
+			},
+		}
+
+		for _, tc := range testCases {
+			t.Run(tc.name, func(t *testing.T) {
+				p := fakeParser{value: map[string]any{"ts": tc.val}}
+
+				got, err := parseFile(p, "fake", nil)
+				require.NoError(t, err)
+				assert.Equal(t, map[string]any{"ts": tc.want}, got)
+			})
+		}
+	})
 }
 
 func writeTempFile(t *testing.T, dir, name, content string) string {

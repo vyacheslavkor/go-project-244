@@ -2,6 +2,12 @@ package parsers
 
 import "time"
 
+var timeLayouts = []string{
+	"2006-1-2T15:4:5.999999999Z07:00",
+	"2006-1-2 15:4:5.999999999",
+	"2006-1-2",
+}
+
 // normalizeMap converts parser-specific values in a nested map
 // to their common representation for comparison.
 func normalizeMap(m map[string]any) {
@@ -24,11 +30,23 @@ func normalizeValue(val any) any {
 			v[i] = normalizeValue(item)
 		}
 		return v
+	case string:
+		return normalizeString(v)
 	case time.Time:
 		return normalizeTime(v)
 	default:
 		return v
 	}
+}
+
+func normalizeString(s string) string {
+	for _, layout := range timeLayouts {
+		if t, err := time.Parse(layout, s); err == nil {
+			return normalizeTime(t)
+		}
+	}
+
+	return s
 }
 
 func normalizeTime(t time.Time) string {

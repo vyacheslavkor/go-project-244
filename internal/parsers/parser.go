@@ -41,9 +41,11 @@ var formatParsers = map[format]parser{
 // "no extension" usage errors.
 //
 // After decoding, values are normalized for comparison: integers to float64,
-// time.Time to a string in the shortest form that keeps every part of the value
+// timestamps to a string in the shortest form that keeps every part of the value
 // (date only for midnight in UTC, date and time for other UTC values without
-// fractional seconds, RFC 3339 with offset and nanoseconds otherwise).
+// fractional seconds, RFC 3339 with offset and nanoseconds otherwise). A string
+// that parses as a timestamp is normalized the same way, so the same moment
+// compares equal however it is spelled and whichever format it comes from.
 //
 // On failure, err may wrap one of the package sentinel errors
 // (for example [ErrUnsupportedExtension], [ErrInvalidRoot], [ErrParseFile]).

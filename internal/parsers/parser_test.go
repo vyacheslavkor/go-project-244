@@ -510,6 +510,105 @@ func TestParseFile_normalizesValues(t *testing.T) {
 	})
 }
 
+func TestParseFile_normalizesDateLikeStrings(t *testing.T) {
+	testCases := []struct {
+		name string
+		val  string
+		want string
+	}{
+		{
+			name: "reads a date with a two digit month and day",
+			val:  "2023-01-01",
+			want: "2023-01-01",
+		},
+		{
+			name: "reads a date with a one digit month and day",
+			val:  "2023-1-1",
+			want: "2023-01-01",
+		},
+		{
+			name: "shortens midnight written as a date and time",
+			val:  "2023-01-01 00:00:00",
+			want: "2023-01-01",
+		},
+		{
+			name: "shortens midnight written with one digit parts",
+			val:  "2023-1-1 0:0:0",
+			want: "2023-01-01",
+		},
+		{
+			name: "shortens midnight written in rfc 3339",
+			val:  "2023-01-01T00:00:00Z",
+			want: "2023-01-01",
+		},
+		{
+			name: "reads a date and time with two digit parts",
+			val:  "2023-01-01 15:04:05",
+			want: "2023-01-01 15:04:05",
+		},
+		{
+			name: "reads a date and time with one digit parts",
+			val:  "2023-1-1 15:4:5",
+			want: "2023-01-01 15:04:05",
+		},
+		{
+			name: "keeps fractional seconds",
+			val:  "2023-01-01T10:20:30.5Z",
+			want: "2023-01-01T10:20:30.5Z",
+		},
+		{
+			name: "tells a different fraction of a second apart",
+			val:  "2023-01-01T10:20:30.9Z",
+			want: "2023-01-01T10:20:30.9Z",
+		},
+		{
+			name: "keeps a zone offset at midnight",
+			val:  "2023-01-01T00:00:00+03:00",
+			want: "2023-01-01T00:00:00+03:00",
+		},
+		{
+			name: "keeps a zone offset together with fractional seconds",
+			val:  "2023-01-01T10:20:30.5+03:00",
+			want: "2023-01-01T10:20:30.5+03:00",
+		},
+		{
+			name: "leaves a string that is not a date",
+			val:  "hello",
+			want: "hello",
+		},
+		{
+			name: "leaves a date with impossible month and day",
+			val:  "2023-13-45",
+			want: "2023-13-45",
+		},
+		{
+			name: "leaves a time without a date",
+			val:  "15:04:05",
+			want: "15:04:05",
+		},
+		{
+			name: "leaves a lowercase rfc 3339 separator, as yaml does",
+			val:  "2023-01-01t15:04:05z",
+			want: "2023-01-01t15:04:05z",
+		},
+		{
+			name: "leaves a date and time with a separate offset, as yaml does",
+			val:  "2023-01-01 15:04:05 +03:00",
+			want: "2023-01-01 15:04:05 +03:00",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			p := fakeParser{value: map[string]any{"ts": tc.val}}
+
+			got, err := parseFile(p, "fake", nil)
+			require.NoError(t, err)
+			assert.Equal(t, map[string]any{"ts": tc.want}, got)
+		})
+	}
+}
+
 func writeTempFile(t *testing.T, dir, name, content string) string {
 	t.Helper()
 

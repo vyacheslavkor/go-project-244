@@ -41,7 +41,9 @@ var formatParsers = map[format]parser{
 // "no extension" usage errors.
 //
 // After decoding, values are normalized for comparison: integers to float64,
-// time.Time to a string (date-only as YYYY-MM-DD, otherwise RFC3339).
+// time.Time to a string in the shortest form that keeps every part of the value
+// (date only for midnight in UTC, date and time for other UTC values without
+// fractional seconds, RFC 3339 with offset and nanoseconds otherwise).
 //
 // On failure, err may wrap one of the package sentinel errors
 // (for example [ErrUnsupportedExtension], [ErrInvalidRoot], [ErrParseFile]).

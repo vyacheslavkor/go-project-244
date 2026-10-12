@@ -32,9 +32,13 @@ func normalizeValue(val any) any {
 }
 
 func normalizeTime(t time.Time) string {
-	if t.Hour() == 0 && t.Minute() == 0 && t.Second() == 0 {
-		return t.Format("2006-01-02")
+	if _, offset := t.Zone(); offset != 0 || t.Nanosecond() != 0 {
+		return t.Format(time.RFC3339Nano)
 	}
 
-	return t.Format(time.RFC3339)
+	if t.Hour() == 0 && t.Minute() == 0 && t.Second() == 0 {
+		return t.Format(time.DateOnly)
+	}
+
+	return t.Format(time.DateTime)
 }

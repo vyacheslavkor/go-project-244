@@ -457,11 +457,11 @@ func TestParseFile_normalizesValues(t *testing.T) {
 		"nested": map[string]any{
 			"int":      float64(2),
 			"released": "2023-01-01",
-			"updated":  "2023-01-01T15:04:05Z",
+			"updated":  "2023-01-01 15:04:05",
 		},
 		"list": []any{
 			float64(math.MaxUint64),
-			"2023-01-01T15:04:05Z",
+			"2023-01-01 15:04:05",
 		},
 	}, got)
 }

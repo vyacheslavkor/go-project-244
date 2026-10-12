@@ -30,7 +30,15 @@ Input formats:
   JSON  (.json)
   YAML  (.yml, .yaml)
 
-The parser is chosen by file extension (content is not sniffed).
+The parser is chosen by file extension, not by inspecting the file.
+
+Value comparison:
+  Values are compared in a normalized form, so the same value written
+  differently matches: numbers become float64 (1 equals 1.0), and a
+  timestamp -- including a string that parses as one -- becomes the
+  shortest string that keeps every part of the value. One moment matches
+  however it is spelled and whichever format it comes from; values that
+  differ as moments (fractional seconds, zone offsets) stay different.
 
 Output formats (--format / -f):
   stylish  Nested tree with +/- markers (default).

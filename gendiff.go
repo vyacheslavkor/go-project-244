@@ -15,7 +15,14 @@ import (
 // whose root value is a JSON object or YAML mapping (arrays/sequences at the
 // root are rejected). Supported input formats are JSON (.json) and YAML
 // (.yml, .yaml). The files can use different formats. The parser is chosen by
-// file extension; content is not sniffed.
+// file extension, not by inspecting the file.
+//
+// Values are compared in a normalized form, so the same value written
+// differently matches: numbers become float64 (1 equals 1.0), and a timestamp
+// (including a string that parses as one) becomes the shortest string that
+// keeps every part of the value. One moment therefore matches however it is
+// spelled and whichever format it comes from, while values that differ as
+// moments -- fractional seconds, zone offsets -- stay different.
 //
 // format selects the output style: [FormatStylish], [FormatPlain], or
 // [FormatJSON]. An empty format is treated as [FormatStylish].

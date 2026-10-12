@@ -8,8 +8,8 @@ var timeLayouts = []string{
 	"2006-1-2",
 }
 
-// normalizeMap converts parser-specific values in a nested map
-// to their common representation for comparison.
+// normalizeMap converts values in a nested map to the form they are
+// compared in, so that equal values from JSON and YAML match.
 func normalizeMap(m map[string]any) {
 	for k, v := range m {
 		m[k] = normalizeValue(v)

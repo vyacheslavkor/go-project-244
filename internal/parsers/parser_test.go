@@ -378,60 +378,6 @@ func TestExtractExt(t *testing.T) {
 	}
 }
 
-func TestDetectFormat(t *testing.T) {
-	testCases := []struct {
-		name    string
-		path    string
-		want    format
-		wantErr error
-	}{
-		{
-			name: "detects json format",
-			path: "a.json",
-			want: formatJSON,
-		},
-		{
-			name: "detects json format from uppercase extension",
-			path: "a.JSON",
-			want: formatJSON,
-		},
-		{
-			name: "detects yaml format from yml extension",
-			path: "a.yml",
-			want: formatYAML,
-		},
-		{
-			name: "detects yaml format from yaml extension",
-			path: "a.yaml",
-			want: formatYAML,
-		},
-		{
-			name:    "rejects unsupported extension",
-			path:    "a.txt",
-			wantErr: ErrUnsupportedExtension,
-		},
-		{
-			name:    "rejects path without extension",
-			path:    "a",
-			wantErr: ErrMissingExtension,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got, err := detectFormat(tc.path)
-			if tc.wantErr != nil {
-				assert.ErrorIs(t, err, tc.wantErr)
-				assert.Empty(t, got)
-				return
-			}
-
-			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
-		})
-	}
-}
-
 func TestParseFile_normalizesValues(t *testing.T) {
 	val := map[string]any{
 		"uint":     uint64(1),

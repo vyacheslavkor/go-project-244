@@ -11,22 +11,10 @@ type parser interface {
 	parse(content []byte) (any, error)
 }
 
-type format string
-
-const (
-	formatJSON format = "json"
-	formatYAML format = "yaml"
-)
-
-var extFormats = map[string]format{
-	".json": formatJSON,
-	".yml":  formatYAML,
-	".yaml": formatYAML,
-}
-
-var formatParsers = map[format]parser{
-	formatJSON: jsonParser{},
-	formatYAML: yamlParser{},
+var extParsers = map[string]parser{
+	".json": jsonParser{},
+	".yml":  yamlParser{},
+	".yaml": yamlParser{},
 }
 
 // ParseFiles reads and parses two configuration files and returns their
@@ -138,26 +126,17 @@ func describeRootKind(root any) string {
 }
 
 func resolveParser(filePath string) (parser, error) {
-	format, err := detectFormat(filePath)
+	ext, err := extractExt(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	return formatParsers[format], nil
-}
-
-func detectFormat(path string) (format, error) {
-	ext, err := extractExt(path)
-	if err != nil {
-		return "", err
-	}
-
-	f, ok := extFormats[ext]
+	p, ok := extParsers[ext]
 	if !ok {
-		return "", fmt.Errorf("%w: '%s' for file '%s'", ErrUnsupportedExtension, ext, path)
+		return nil, fmt.Errorf("%w: '%s' for file '%s'", ErrUnsupportedExtension, ext, filePath)
 	}
 
-	return f, nil
+	return p, nil
 }
 
 func extractExt(path string) (string, error) {

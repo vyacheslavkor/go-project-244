@@ -10,6 +10,7 @@ common:
     ops: vops
     doge:
       wow: so much
+  timeout: 123456789
 group1:
   foo: bar
   baz: bars
@@ -19,3 +20,4 @@ group3:
     id:
       number: 45
   fee: 100500
+  limit: 1000000000000000000000

@@ -40,6 +40,11 @@ Value comparison:
   however it is spelled and whichever format it comes from; values that
   differ as moments (fractional seconds, zone offsets) stay different.
 
+Value rendering:
+  Numbers are printed in positional notation in every format, so a file
+  that says 1000000 shows 1000000 and never 1e+06. A value looks the
+  same whichever format is selected.
+
 Output formats (--format / -f):
   stylish  Nested tree with +/- markers (default).
            No changes: pretty-printed empty object.

@@ -72,6 +72,8 @@ The utility expects exactly two arguments: paths to the files being compared. By
 | `plain` | Line-oriented human-readable messages (skips unchanged properties). No changes: empty output (nothing is printed). Complex values are shown as `[complex value]`. |
 | `json` | Compact single-line JSON tree of changes. Envelope: `{"key":"","status":"root","children":[...]}` (`children` omitted when empty). Node fields: `key`, `status`, `old_value?`, `value?`, `children?`. Node statuses: `root` (document root, empty key), `added`, `removed`, `updated`, `nested`, `unchanged`. Unchanged nodes are included. |
 
+Numbers are printed in positional notation in every format: a file that says `1000000` shows `1000000`, never `1e+06`. A value looks the same whichever `--format` is selected.
+
 ### Examples
 
 **1. Stylish format (default):**

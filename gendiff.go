@@ -24,6 +24,10 @@ import (
 // spelled and whichever format it comes from, while values that differ as
 // moments -- fractional seconds, zone offsets -- stay different.
 //
+// Numbers are printed in positional notation in every format, so a file that
+// says 1000000 renders as 1000000 and never in exponential form. A value looks
+// the same whichever format is selected.
+//
 // format selects the output style: [FormatStylish], [FormatPlain], or
 // [FormatJSON]. An empty format is treated as [FormatStylish].
 //

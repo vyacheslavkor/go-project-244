@@ -48,19 +48,56 @@ func buildJSONNodes(nodes []*diff.Node) []jsonNode {
 
 		switch node.Status {
 		case diff.StatusAdded:
-			n.Value = &node.NewValue
+			formattedValue := formatValueToJSON(node.NewValue)
+			n.Value = &formattedValue
 		case diff.StatusRemoved:
-			n.OldValue = &node.OldValue
+			formattedOldValue := formatValueToJSON(node.OldValue)
+			n.OldValue = &formattedOldValue
 		case diff.StatusUpdated:
-			n.Value = &node.NewValue
-			n.OldValue = &node.OldValue
+			formattedValue := formatValueToJSON(node.NewValue)
+			n.Value = &formattedValue
+
+			formattedOldValue := formatValueToJSON(node.OldValue)
+			n.OldValue = &formattedOldValue
 		case diff.StatusUnchanged:
-			n.Value = &node.NewValue
+			formattedValue := formatValueToJSON(node.NewValue)
+			n.Value = &formattedValue
 		case diff.StatusNested:
 			n.Children = buildJSONNodes(node.Children)
 		}
 
 		result = append(result, n)
+	}
+
+	return result
+}
+
+func formatValueToJSON(val any) any {
+	switch v := val.(type) {
+	case float64:
+		return json.Number(formatNumber(v))
+	case map[string]any:
+		return formatJSONMap(v)
+	case []any:
+		return formatJSONSlice(v)
+	default:
+		return val
+	}
+}
+
+func formatJSONSlice(items []any) []any {
+	result := make([]any, 0, len(items))
+	for _, item := range items {
+		result = append(result, formatValueToJSON(item))
+	}
+
+	return result
+}
+
+func formatJSONMap(items map[string]any) map[string]any {
+	result := make(map[string]any, len(items))
+	for key, value := range items {
+		result[key] = formatValueToJSON(value)
 	}
 
 	return result

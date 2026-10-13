@@ -3,6 +3,7 @@ package formatters
 import (
 	"code/internal/diff"
 	"fmt"
+	"strconv"
 )
 
 // Format names.
@@ -42,4 +43,8 @@ func NewFormatter(format string) (Formatter, error) {
 	}
 
 	return nil, fmt.Errorf("%w: %s", ErrInvalidFormat, format)
+}
+
+func formatNumber(val float64) string {
+	return strconv.FormatFloat(val, 'f', -1, 64)
 }

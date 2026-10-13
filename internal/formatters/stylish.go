@@ -4,6 +4,7 @@ import (
 	"code/internal/diff"
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -71,11 +72,18 @@ func formatLine(indent, sign, key, value string) string {
 }
 
 func toString(val any) string {
-	if val == nil {
+	switch v := val.(type) {
+	case nil:
 		return "null"
+	case string:
+		return v
+	case bool:
+		return strconv.FormatBool(v)
+	case float64:
+		return formatNumber(v)
+	default:
+		return fmt.Sprintf("%v", v)
 	}
-
-	return fmt.Sprintf("%v", val)
 }
 
 func formatStylishValue(v any, depth int) string {

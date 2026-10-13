@@ -3,6 +3,7 @@ package formatters
 import (
 	"code/internal/diff"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -37,17 +38,15 @@ func formatPlain(nodes []*diff.Node, path string) string {
 }
 
 func formatValueToPlain(val any) string {
-	if val == nil {
-		return "null"
-	}
-
 	switch v := val.(type) {
+	case nil:
+		return "null"
 	case string:
-		return fmt.Sprintf("'%v'", v)
-	case bool, int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64,
-		float32, float64:
-		return fmt.Sprintf("%v", v)
+		return fmt.Sprintf("'%s'", v)
+	case bool:
+		return strconv.FormatBool(v)
+	case float64:
+		return formatNumber(v)
 	case map[string]any, []any:
 		return "[complex value]"
 	default:

@@ -3,6 +3,7 @@ package formatters
 import (
 	"code/internal/diff"
 	"encoding/json"
+	"fmt"
 )
 
 type jsonFormatter struct{}
@@ -31,7 +32,7 @@ func (f jsonFormatter) Format(root *diff.Node) (string, error) {
 
 	data, err := json.Marshal(rootNode)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%w: %w", ErrFormatOutput, err)
 	}
 
 	return string(data), nil

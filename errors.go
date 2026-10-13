@@ -8,6 +8,8 @@ import (
 var (
 	// ErrInvalidFormat is returned when the output format name is unknown.
 	ErrInvalidFormat = formatters.ErrInvalidFormat
+	// ErrFormatOutput is returned when the difference tree cannot be rendered as output.
+	ErrFormatOutput = formatters.ErrFormatOutput
 	// ErrMissingExtension is returned when a path has no file extension.
 	ErrMissingExtension = parsers.ErrMissingExtension
 	// ErrUnsupportedExtension is returned when the file extension is not supported.

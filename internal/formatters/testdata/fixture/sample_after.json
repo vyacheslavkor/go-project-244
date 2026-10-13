@@ -4,7 +4,12 @@
   "unchanged": true,
   "null_val": null,
   "number": 20,
-  "list": ["a", "b", {"x": 2}],
+  "boundary": 999999,
+  "timeout": 2000000,
+  "size": 123456789,
+  "huge": 1000000000000000000000,
+  "micro": 0.0000001,
+  "list": ["a", "b", {"x": 2000000}],
   "complex": "plain",
   "nested": {
     "keep": true,

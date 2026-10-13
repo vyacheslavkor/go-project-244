@@ -2,23 +2,28 @@
   + added: hi
   - added_later: x
   + bool_add: false
+    boundary: 999999
   - complex: {
+        deep_num: 1000000000000000000000
         inner: v
     }
   + complex: plain
+    huge: 1000000000000000000000
   - list: [
         a
         {
-            x: 1
+            x: 1000000
         }
     ]
   + list: [
         a
         b
         {
-            x: 2
+            x: 2000000
         }
     ]
+    micro: 0.0000001
+  - money: 1234567.89
     nested: {
       - change: old
       + change: new
@@ -31,6 +36,9 @@
   - number: 10
   + number: 20
   - removed: bye
+  + size: 123456789
+  - timeout: 1000000
+  + timeout: 2000000
     unchanged: true
   - updated: before
   + updated: after

@@ -5,9 +5,15 @@
   "unchanged": true,
   "null_val": "not-null",
   "number": 10,
-  "list": ["a", {"x": 1}],
+  "boundary": 999999,
+  "timeout": 1000000,
+  "money": 1234567.89,
+  "huge": 1000000000000000000000,
+  "micro": 0.0000001,
+  "list": ["a", {"x": 1000000}],
   "complex": {
-    "inner": "v"
+    "inner": "v",
+    "deep_num": 1000000000000000000000
   },
   "nested": {
     "keep": true,

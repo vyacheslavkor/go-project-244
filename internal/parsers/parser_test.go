@@ -1,7 +1,6 @@
 package parsers
 
 import (
-	"math"
 	"os"
 	"path/filepath"
 	"testing"
@@ -456,14 +455,14 @@ func TestExtractExt(t *testing.T) {
 func TestParseFile_normalizesValues(t *testing.T) {
 	val := map[string]any{
 		"uint":     uint64(1),
-		"uint_max": uint64(math.MaxUint64),
+		"uint_max": uint64(18446744073709551615),
 		"nested": map[string]any{
 			"int":      int(2),
 			"released": time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
 			"updated":  time.Date(2023, 1, 1, 15, 4, 5, 0, time.UTC),
 		},
 		"list": []any{
-			uint64(math.MaxUint64),
+			uint64(18446744073709551615),
 			time.Date(2023, 1, 1, 15, 4, 5, 0, time.UTC),
 		},
 	}
@@ -474,14 +473,14 @@ func TestParseFile_normalizesValues(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, map[string]any{
 		"uint":     float64(1),
-		"uint_max": float64(math.MaxUint64),
+		"uint_max": float64(18446744073709551616),
 		"nested": map[string]any{
 			"int":      float64(2),
 			"released": "2023-01-01",
 			"updated":  "2023-01-01 15:04:05",
 		},
 		"list": []any{
-			float64(math.MaxUint64),
+			float64(18446744073709551616),
 			"2023-01-01 15:04:05",
 		},
 	}, got)

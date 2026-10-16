@@ -39,6 +39,9 @@ Value comparison:
   shortest string that keeps every part of the value. One moment matches
   however it is spelled and whichever format it comes from; values that
   differ as moments (fractional seconds, zone offsets) stay different.
+  Comparison carries float64 precision, so integers that differ only
+  beyond it (above 2^53) become the same value and can render
+  differently from the file text.
 
 Value rendering:
   Numbers are printed in positional notation in every format, so a file

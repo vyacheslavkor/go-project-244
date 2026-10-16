@@ -34,6 +34,8 @@ var extParsers = map[string]parser{
 // fractional seconds, RFC 3339 with offset and nanoseconds otherwise). A string
 // that parses as a timestamp is normalized the same way, so the same moment
 // compares equal however it is spelled and whichever format it comes from.
+// float64 is also the limit of comparison: integers above 2^53 that differ
+// only in their low digits become the same value.
 //
 // On failure, err may wrap one of the package sentinel errors
 // (for example [ErrUnsupportedExtension], [ErrInvalidRoot], [ErrParseFile]).

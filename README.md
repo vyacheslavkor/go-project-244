@@ -61,7 +61,7 @@ The utility expects exactly two arguments: paths to the files being compared. By
 - Supported input formats: JSON (`.json`) and YAML (`.yml`, `.yaml`).
 - JSON and YAML may be mixed; each file is parsed by its own extension.
 - The parser is chosen by file extension, not by inspecting the file.
-- Values are compared in a normalized form, so the same value written differently matches: numbers become `float64` (`1` equals `1.0`), and a timestamp — including a string that parses as one — becomes the shortest string that keeps every part of the value. One moment therefore matches however it is spelled and whichever format it comes from; values that differ as moments (fractional seconds, zone offsets) stay different.
+- Values are compared in a normalized form, so the same value written differently matches: numbers become `float64` (`1` equals `1.0`), and a timestamp — including a string that parses as one — becomes the shortest string that keeps every part of the value. One moment therefore matches however it is spelled and whichever format it comes from; values that differ as moments (fractional seconds, zone offsets) stay different. Comparison carries `float64` precision, so integers that differ only beyond it (above 2^53) become the same value and can render differently from the text in the file.
 - Usage errors (wrong args/flags/input contract) print help on stdout and a reason on stderr. Operational errors (missing/unreadable files, malformed content) print only the reason on stderr.
 
 ### Output Formats

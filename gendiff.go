@@ -22,7 +22,9 @@ import (
 // (including a string that parses as one) becomes the shortest string that
 // keeps every part of the value. One moment therefore matches however it is
 // spelled and whichever format it comes from, while values that differ as
-// moments -- fractional seconds, zone offsets -- stay different.
+// moments -- fractional seconds, zone offsets -- stay different. Comparison
+// carries float64 precision, so integers that differ only beyond it (above
+// 2^53) become the same value and can render differently from the file text.
 //
 // Numbers are printed in positional notation in every format, so a file that
 // says 1000000 renders as 1000000 and never in exponential form. A value looks

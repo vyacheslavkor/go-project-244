@@ -31,6 +31,8 @@ func formatPlain(nodes []*diff.Node, path string) string {
 			if nested != "" {
 				lines = append(lines, nested)
 			}
+		default:
+			panic(fmt.Sprintf("plain: unknown status %q", node.Status))
 		}
 	}
 

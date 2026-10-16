@@ -16,6 +16,8 @@ const (
 // Formatter formats a difference tree as a string.
 type Formatter interface {
 	// Format renders root according to the formatter implementation.
+	// It panics if a node carries a status the implementation does not
+	// handle, which cannot happen for a tree built by [diff.Build].
 	Format(root *diff.Node) (string, error)
 }
 

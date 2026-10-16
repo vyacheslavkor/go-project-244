@@ -46,6 +46,8 @@ func formatStylish(nodes []*diff.Node, depth int) string {
 			lines = append(lines, formatLine(prefix, "", node.Key, formatStylishValue(node.NewValue, depth)))
 		case diff.StatusNested:
 			lines = append(lines, formatLine(prefix, "", node.Key, formatStylish(node.Children, depth+1)))
+		default:
+			panic(fmt.Sprintf("stylish: unknown status %q", node.Status))
 		}
 	}
 

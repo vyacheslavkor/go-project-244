@@ -61,6 +61,8 @@ func buildJSONNode(node *diff.Node) jsonNode {
 	case diff.StatusUnchanged:
 		formattedValue := formatValueToJSON(node.NewValue)
 		result.Value = &formattedValue
+	default:
+		panic(fmt.Sprintf("json: unknown status %q", node.Status))
 	}
 
 	return result

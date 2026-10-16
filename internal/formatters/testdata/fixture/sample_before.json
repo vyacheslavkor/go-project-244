@@ -5,6 +5,7 @@
   "unchanged": true,
   "null_val": "not-null",
   "number": 10,
+  "serial": 9007199254740993,
   "boundary": 999999,
   "timeout": 1000000,
   "money": 1234567.89,

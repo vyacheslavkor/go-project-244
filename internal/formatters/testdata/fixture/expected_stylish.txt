@@ -36,6 +36,8 @@
   - number: 10
   + number: 20
   - removed: bye
+  - serial: 9007199254740992
+  + serial: 18446744073709552000
   + size: 123456789
   - timeout: 1000000
   + timeout: 2000000

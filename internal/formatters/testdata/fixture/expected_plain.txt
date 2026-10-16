@@ -10,6 +10,7 @@ Property 'nested.gone' was removed
 Property 'null_val' was updated. From 'not-null' to null
 Property 'number' was updated. From 10 to 20
 Property 'removed' was removed
+Property 'serial' was updated. From 9007199254740992 to 18446744073709552000
 Property 'size' was added with value: 123456789
 Property 'timeout' was updated. From 1000000 to 2000000
 Property 'updated' was updated. From 'before' to 'after'

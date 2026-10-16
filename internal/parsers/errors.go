@@ -11,8 +11,9 @@ var (
 	ErrNotRegularFile = errors.New("path is not a regular file")
 	// ErrEmptyFile is returned when the file has zero size.
 	ErrEmptyFile = errors.New("file is empty")
-	// ErrInvalidRoot is returned when the root value is not a JSON object or YAML mapping.
-	ErrInvalidRoot = errors.New("root value must be a JSON object or a YAML mapping")
+	// ErrInvalidRoot is returned when the root value is not a JSON object or
+	// a YAML mapping with string keys.
+	ErrInvalidRoot = errors.New("root value must be a JSON object or a YAML mapping with string keys")
 	// ErrParseFile is returned when file contents cannot be decoded.
 	ErrParseFile = errors.New("failed to parse file")
 	// ErrReadFile is returned when the file cannot be read from disk.

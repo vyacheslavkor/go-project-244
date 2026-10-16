@@ -18,7 +18,8 @@ var (
 	ErrNotRegularFile = parsers.ErrNotRegularFile
 	// ErrEmptyFile is returned when the file has zero size.
 	ErrEmptyFile = parsers.ErrEmptyFile
-	// ErrInvalidRoot is returned when the root value is not a JSON object or YAML mapping.
+	// ErrInvalidRoot is returned when the root value is not a JSON object or
+	// a YAML mapping with string keys.
 	ErrInvalidRoot = parsers.ErrInvalidRoot
 	// ErrParseFile is returned when file contents cannot be decoded.
 	ErrParseFile = parsers.ErrParseFile

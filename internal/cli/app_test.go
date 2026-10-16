@@ -229,7 +229,7 @@ func TestNewCommandUsageErrors(t *testing.T) {
 			args:       []string{f.arrayJSON, f.json2},
 			wantStdout: f.help,
 			wantStderr: fmt.Sprintf(
-				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping: got array\n",
+				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping with string keys: got array\n",
 				f.arrayJSON,
 			),
 		},
@@ -238,7 +238,7 @@ func TestNewCommandUsageErrors(t *testing.T) {
 			args:       []string{f.json1, f.arrayJSON},
 			wantStdout: f.help,
 			wantStderr: fmt.Sprintf(
-				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping: got array\n",
+				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping with string keys: got array\n",
 				f.arrayJSON,
 			),
 		},
@@ -247,7 +247,7 @@ func TestNewCommandUsageErrors(t *testing.T) {
 			args:       []string{f.arrayYML, f.yml2},
 			wantStdout: f.help,
 			wantStderr: fmt.Sprintf(
-				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping: got array\n",
+				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping with string keys: got array\n",
 				f.arrayYML,
 			),
 		},
@@ -256,7 +256,7 @@ func TestNewCommandUsageErrors(t *testing.T) {
 			args:       []string{f.yml1, f.arrayYML},
 			wantStdout: f.help,
 			wantStderr: fmt.Sprintf(
-				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping: got array\n",
+				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping with string keys: got array\n",
 				f.arrayYML,
 			),
 		},

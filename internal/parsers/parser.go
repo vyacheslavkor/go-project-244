@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type parser interface {
@@ -21,7 +22,8 @@ var extParsers = map[string]parser{
 // contents as nested maps.
 //
 // beforePath and afterPath must point to existing non-empty regular files
-// whose root value is a JSON object or YAML mapping. Supported formats are JSON
+// whose root value is a JSON object or a YAML mapping with string keys.
+// Supported formats are JSON
 // (.json) and YAML (.yml, .yaml). The files can use different formats.
 //
 // Paths are validated as regular non-empty files before extension checks,
@@ -122,8 +124,12 @@ func describeRootKind(root any) string {
 		uint, uint8, uint16, uint32, uint64,
 		float32, float64:
 		return "number"
+	case time.Time:
+		return "timestamp"
+	case map[any]any:
+		return "mapping with non-string keys"
 	default:
-		return fmt.Sprintf("%T", root)
+		return "unsupported value"
 	}
 }
 

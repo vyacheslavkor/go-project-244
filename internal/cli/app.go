@@ -22,8 +22,9 @@ Arguments:
                 positional arguments are required.
 
 Input constraints:
-  The root value of each file must be a JSON object or a YAML mapping.
-  Root-level arrays/sequences, scalars, and null are rejected.
+  The root value of each file must be a JSON object or a YAML mapping
+  with string keys. Root-level arrays/sequences, scalars, and null are
+  rejected, and so is a YAML mapping whose keys are not strings.
   Empty files are rejected.
 
 Input formats:

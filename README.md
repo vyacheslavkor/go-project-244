@@ -56,7 +56,7 @@ The utility expects exactly two arguments: paths to the files being compared. By
 ### Input Rules
 
 - Exactly two positional arguments are required: paths to existing non-empty regular files.
-- The root value of each file must be a JSON object or a YAML mapping. Root-level arrays/sequences, scalars, and null are rejected.
+- The root value of each file must be a JSON object or a YAML mapping with string keys. Root-level arrays/sequences, scalars, and null are rejected, and so is a YAML mapping whose keys are not strings (`1: a`).
 - Empty files are rejected.
 - Supported input formats: JSON (`.json`) and YAML (`.yml`, `.yaml`).
 - JSON and YAML may be mixed; each file is parsed by its own extension.

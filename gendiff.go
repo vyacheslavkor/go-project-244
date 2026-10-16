@@ -12,8 +12,9 @@ import (
 // as a formatted string.
 //
 // beforePath and afterPath must be paths to existing non-empty regular files
-// whose root value is a JSON object or YAML mapping (arrays/sequences at the
-// root are rejected). Supported input formats are JSON (.json) and YAML
+// whose root value is a JSON object or a YAML mapping with string keys
+// (arrays/sequences, scalars and mappings with non-string keys at the root
+// are rejected). Supported input formats are JSON (.json) and YAML
 // (.yml, .yaml). The files can use different formats. The parser is chosen by
 // file extension, not by inspecting the file.
 //

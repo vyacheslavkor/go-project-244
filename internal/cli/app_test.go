@@ -128,8 +128,13 @@ func TestNewCommandSuccess(t *testing.T) {
 			wantStdout: "",
 		},
 		{
-			name:       "comparing files with different extensions",
+			name:       "compares json first file with yml second file",
 			args:       []string{f.json1, f.yml2},
+			wantStdout: f.expectedStylish,
+		},
+		{
+			name:       "compares yml first file with json second file",
+			args:       []string{f.yml1, f.json2},
 			wantStdout: f.expectedStylish,
 		},
 	}
@@ -178,26 +183,44 @@ func TestNewCommandUsageErrors(t *testing.T) {
 			wantStderr: "incorrect usage: invalid format: xml\n",
 		},
 		{
-			name:       "rejects unsupported input extension",
-			args:       []string{f.txt1, f.txt2},
+			name:       "rejects unsupported extension on first file",
+			args:       []string{f.txt1, f.json2},
 			wantStdout: f.help,
 			wantStderr: fmt.Sprintf("incorrect usage: unsupported extension: '.txt' for file '%s'\n", f.txt1),
 		},
+		{
+			name:       "rejects unsupported extension on second file",
+			args:       []string{f.json1, f.txt2},
+			wantStdout: f.help,
+			wantStderr: fmt.Sprintf("incorrect usage: unsupported extension: '.txt' for file '%s'\n", f.txt2),
+		},
 
 		{
-			name:       "rejects empty file as usage error",
+			name:       "rejects empty first file as usage error",
 			args:       []string{f.emptyJSON, f.json2},
 			wantStdout: f.help,
 			wantStderr: fmt.Sprintf("incorrect usage: file is empty: '%s'\n", f.emptyJSON),
 		},
 		{
-			name:       "rejects directory path as usage error",
+			name:       "rejects empty second file as usage error",
+			args:       []string{f.json1, f.emptyJSON},
+			wantStdout: f.help,
+			wantStderr: fmt.Sprintf("incorrect usage: file is empty: '%s'\n", f.emptyJSON),
+		},
+		{
+			name:       "rejects directory in first path as usage error",
 			args:       []string{f.dirAsJSON, f.json2},
 			wantStdout: f.help,
 			wantStderr: fmt.Sprintf("incorrect usage: path is not a regular file: '%s'\n", f.dirAsJSON),
 		},
 		{
-			name:       "rejects json root array as usage error",
+			name:       "rejects directory in second path as usage error",
+			args:       []string{f.json1, f.dirAsJSON},
+			wantStdout: f.help,
+			wantStderr: fmt.Sprintf("incorrect usage: path is not a regular file: '%s'\n", f.dirAsJSON),
+		},
+		{
+			name:       "rejects json root array in first file as usage error",
 			args:       []string{f.arrayJSON, f.json2},
 			wantStdout: f.help,
 			wantStderr: fmt.Sprintf(
@@ -206,8 +229,26 @@ func TestNewCommandUsageErrors(t *testing.T) {
 			),
 		},
 		{
-			name:       "rejects yaml root sequence as usage error",
+			name:       "rejects json root array in second file as usage error",
+			args:       []string{f.json1, f.arrayJSON},
+			wantStdout: f.help,
+			wantStderr: fmt.Sprintf(
+				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping: got array\n",
+				f.arrayJSON,
+			),
+		},
+		{
+			name:       "rejects yaml root sequence in first file as usage error",
 			args:       []string{f.arrayYML, f.yml2},
+			wantStdout: f.help,
+			wantStderr: fmt.Sprintf(
+				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping: got array\n",
+				f.arrayYML,
+			),
+		},
+		{
+			name:       "rejects yaml root sequence in second file as usage error",
+			args:       []string{f.yml1, f.arrayYML},
 			wantStdout: f.help,
 			wantStderr: fmt.Sprintf(
 				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping: got array\n",
@@ -235,13 +276,26 @@ func TestNewCommandOperationalErrors(t *testing.T) {
 		wantStderr string
 	}{
 		{
-			name:       "rejects missing file without dumping help",
-			args:       []string{"missing1.json", "missing2.json"},
+			name:       "rejects missing first file without dumping help",
+			args:       []string{"missing1.json", f.json2},
 			wantStderr: "failed to read file: 'missing1.json': stat missing1.json: no such file or directory\n",
 		},
 		{
-			name: "rejects malformed json without dumping help",
+			name:       "rejects missing second file without dumping help",
+			args:       []string{f.json1, "missing2.json"},
+			wantStderr: "failed to read file: 'missing2.json': stat missing2.json: no such file or directory\n",
+		},
+		{
+			name: "rejects malformed json in first file without dumping help",
 			args: []string{f.badJSON, f.json2},
+			wantStderr: fmt.Sprintf(
+				"failed to parse file: '%s': invalid character 'b' looking for beginning of object key string\n",
+				f.badJSON,
+			),
+		},
+		{
+			name: "rejects malformed json in second file without dumping help",
+			args: []string{f.json1, f.badJSON},
 			wantStderr: fmt.Sprintf(
 				"failed to parse file: '%s': invalid character 'b' looking for beginning of object key string\n",
 				f.badJSON,

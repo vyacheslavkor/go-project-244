@@ -24,11 +24,7 @@ type jsonNode struct {
 }
 
 func (f jsonFormatter) Format(root *diff.Node) (string, error) {
-	rootNode := jsonNode{
-		Key:      root.Key,
-		Status:   string(root.Status),
-		Children: buildJSONNodes(root.Children),
-	}
+	rootNode := buildJSONNode(root)
 
 	data, err := json.Marshal(rootNode)
 	if err != nil {
@@ -38,36 +34,33 @@ func (f jsonFormatter) Format(root *diff.Node) (string, error) {
 	return string(data), nil
 }
 
-func buildJSONNodes(nodes []*diff.Node) []jsonNode {
-	result := make([]jsonNode, 0, len(nodes))
+func buildJSONNode(node *diff.Node) jsonNode {
+	result := jsonNode{
+		Key:    node.Key,
+		Status: string(node.Status),
+	}
 
-	for _, node := range nodes {
-		n := jsonNode{
-			Key:    node.Key,
-			Status: string(node.Status),
+	switch node.Status {
+	case diff.StatusRoot, diff.StatusNested:
+		result.Children = make([]jsonNode, 0, len(node.Children))
+		for _, child := range node.Children {
+			result.Children = append(result.Children, buildJSONNode(child))
 		}
+	case diff.StatusAdded:
+		formattedValue := formatValueToJSON(node.NewValue)
+		result.Value = &formattedValue
+	case diff.StatusRemoved:
+		formattedOldValue := formatValueToJSON(node.OldValue)
+		result.OldValue = &formattedOldValue
+	case diff.StatusUpdated:
+		formattedValue := formatValueToJSON(node.NewValue)
+		result.Value = &formattedValue
 
-		switch node.Status {
-		case diff.StatusAdded:
-			formattedValue := formatValueToJSON(node.NewValue)
-			n.Value = &formattedValue
-		case diff.StatusRemoved:
-			formattedOldValue := formatValueToJSON(node.OldValue)
-			n.OldValue = &formattedOldValue
-		case diff.StatusUpdated:
-			formattedValue := formatValueToJSON(node.NewValue)
-			n.Value = &formattedValue
-
-			formattedOldValue := formatValueToJSON(node.OldValue)
-			n.OldValue = &formattedOldValue
-		case diff.StatusUnchanged:
-			formattedValue := formatValueToJSON(node.NewValue)
-			n.Value = &formattedValue
-		case diff.StatusNested:
-			n.Children = buildJSONNodes(node.Children)
-		}
-
-		result = append(result, n)
+		formattedOldValue := formatValueToJSON(node.OldValue)
+		result.OldValue = &formattedOldValue
+	case diff.StatusUnchanged:
+		formattedValue := formatValueToJSON(node.NewValue)
+		result.Value = &formattedValue
 	}
 
 	return result

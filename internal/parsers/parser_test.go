@@ -69,6 +69,13 @@ func TestJSONParser(t *testing.T) {
 		require.ErrorIs(t, err, ErrInvalidRoot)
 		require.Nil(t, got)
 	})
+
+	t.Run("returns error when root value is a boolean", func(t *testing.T) {
+		got, err := parseFile(p, "file.json", []byte(`true`))
+		require.ErrorIs(t, err, ErrInvalidRoot)
+		require.ErrorContains(t, err, "got boolean")
+		require.Nil(t, got)
+	})
 }
 
 func TestYAMLParser(t *testing.T) {
@@ -124,6 +131,20 @@ nested:
 		got, err := parseFile(p, "file.yml", []byte("42\n"))
 		require.Error(t, err)
 		require.ErrorIs(t, err, ErrInvalidRoot)
+		require.Nil(t, got)
+	})
+
+	t.Run("returns error when root value is a timestamp", func(t *testing.T) {
+		got, err := parseFile(p, "file.yml", []byte("2023-01-01\n"))
+		require.ErrorIs(t, err, ErrInvalidRoot)
+		require.ErrorContains(t, err, "got timestamp")
+		require.Nil(t, got)
+	})
+
+	t.Run("returns error when root mapping has non-string keys", func(t *testing.T) {
+		got, err := parseFile(p, "file.yml", []byte("1: a\n"))
+		require.ErrorIs(t, err, ErrInvalidRoot)
+		require.ErrorContains(t, err, "got mapping with non-string keys")
 		require.Nil(t, got)
 	})
 
@@ -448,6 +469,61 @@ func TestExtractExt(t *testing.T) {
 
 			assert.NoError(t, err)
 			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestDescribeRootKind(t *testing.T) {
+	testCases := []struct {
+		name string
+		root any
+		want string
+	}{
+		{
+			name: "describes a sequence",
+			root: []any{1, 2},
+			want: "array",
+		},
+		{
+			name: "describes a string",
+			root: "hello",
+			want: "string",
+		},
+		{
+			name: "describes a boolean",
+			root: true,
+			want: "boolean",
+		},
+		{
+			name: "describes an integer",
+			root: 42,
+			want: "number",
+		},
+		{
+			name: "describes a float",
+			root: 4.2,
+			want: "number",
+		},
+		{
+			name: "describes a timestamp",
+			root: time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			want: "timestamp",
+		},
+		{
+			name: "describes a mapping with non-string keys",
+			root: map[any]any{1: "a"},
+			want: "mapping with non-string keys",
+		},
+		{
+			name: "never leaks a go type for a value no parser produces",
+			root: struct{}{},
+			want: "unsupported value",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.want, describeRootKind(tc.root))
 		})
 	}
 }

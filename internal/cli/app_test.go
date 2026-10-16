@@ -123,6 +123,11 @@ func TestNewCommandSuccess(t *testing.T) {
 			wantStdout: f.expectedPlain,
 		},
 		{
+			name:       "treats empty format as stylish",
+			args:       []string{f.json1, f.json2, "--format="},
+			wantStdout: f.expectedStylish,
+		},
+		{
 			name:       "plain format prints nothing for identical nested files",
 			args:       []string{f.json1, f.json1, "--format=plain"},
 			wantStdout: "",

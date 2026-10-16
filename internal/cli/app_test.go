@@ -255,6 +255,18 @@ func TestNewCommandUsageErrors(t *testing.T) {
 				f.arrayYML,
 			),
 		},
+		{
+			name:       "rejects unknown flag",
+			args:       []string{f.json1, f.json2, "--unknown_flag=test"},
+			wantStdout: f.help,
+			wantStderr: "incorrect usage: flag provided but not defined: -unknown_flag\n",
+		},
+		{
+			name:       "rejects format flag without value",
+			args:       []string{f.json1, f.json2, "--format"},
+			wantStdout: f.help,
+			wantStderr: "incorrect usage: flag needs an argument: --format\n",
+		},
 	}
 
 	for _, tc := range cases {

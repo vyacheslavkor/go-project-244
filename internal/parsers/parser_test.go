@@ -198,6 +198,13 @@ func TestParseFiles(t *testing.T) {
 			want1: map[string]any{"foo": "bar", "n": float64(1)},
 			want2: map[string]any{"foo": "baz", "n": float64(2)},
 		},
+		{
+			name:  "parses pair of yml and json configs",
+			path1: yml1,
+			path2: json2,
+			want1: map[string]any{"foo": "bar", "n": float64(1)},
+			want2: map[string]any{"foo": "baz", "n": float64(2)},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -220,6 +227,8 @@ func TestParseFiles_Errors(t *testing.T) {
 	emptyJSON := writeTempFile(t, dir, "empty.json", "")
 	noExt := writeTempFile(t, dir, "noext", `{"ok":true}`)
 	unsupported := writeTempFile(t, dir, "file.txt", "hello")
+	arrayJSON := writeTempFile(t, dir, "array.json", `[1,2]`)
+	arrayYML := writeTempFile(t, dir, "array.yml", "- a\n- b\n")
 	subdir := filepath.Join(dir, "subdir.json")
 	require.NoError(t, os.Mkdir(subdir, 0o700))
 	subdirNoExt := filepath.Join(dir, "subdir")
@@ -238,69 +247,135 @@ func TestParseFiles_Errors(t *testing.T) {
 		wantErrs []error
 	}{
 		{
-			name:     "rejects path without extension",
+			name:     "rejects first path without extension",
 			path1:    noExt,
 			path2:    validJSON,
 			wantErrs: []error{ErrMissingExtension},
 		},
 		{
-			name:     "rejects unsupported extension",
+			name:     "rejects second path without extension",
+			path1:    validJSON,
+			path2:    noExt,
+			wantErrs: []error{ErrMissingExtension},
+		},
+		{
+			name:     "rejects unsupported extension on first file",
 			path1:    unsupported,
 			path2:    validJSON,
 			wantErrs: []error{ErrUnsupportedExtension},
 		},
 		{
-			name:     "rejects empty file",
+			name:     "rejects unsupported extension on second file",
+			path1:    validJSON,
+			path2:    unsupported,
+			wantErrs: []error{ErrUnsupportedExtension},
+		},
+		{
+			name:     "rejects empty first file",
 			path1:    emptyJSON,
 			path2:    validJSON,
 			wantErrs: []error{ErrEmptyFile},
 		},
 		{
-			name:     "rejects directory path",
+			name:     "rejects empty second file",
+			path1:    validJSON,
+			path2:    emptyJSON,
+			wantErrs: []error{ErrEmptyFile},
+		},
+		{
+			name:     "rejects directory in first path",
 			path1:    subdir,
 			path2:    validJSON,
 			wantErrs: []error{ErrNotRegularFile},
 		},
 		{
-			name:     "rejects directory path without extension as not a regular file",
+			name:     "rejects directory in second path",
+			path1:    validJSON,
+			path2:    subdir,
+			wantErrs: []error{ErrNotRegularFile},
+		},
+		{
+			name:     "rejects directory without extension in first path as not a regular file",
 			path1:    subdirNoExt,
 			path2:    validJSON,
 			wantErrs: []error{ErrNotRegularFile},
 		},
 		{
-			name:     "rejects unparsable json content",
+			name:     "rejects directory without extension in second path as not a regular file",
+			path1:    validJSON,
+			path2:    subdirNoExt,
+			wantErrs: []error{ErrNotRegularFile},
+		},
+		{
+			name:     "rejects unparsable json content in first file",
 			path1:    invalidJSON,
 			path2:    validJSON,
 			wantErrs: []error{ErrParseFile},
 		},
 		{
-			name:     "rejects unparsable yaml content",
+			name:     "rejects unparsable json content in second file",
+			path1:    validJSON,
+			path2:    invalidJSON,
+			wantErrs: []error{ErrParseFile},
+		},
+		{
+			name:     "rejects unparsable yaml content in first file",
 			path1:    invalidYML,
 			path2:    validYML,
 			wantErrs: []error{ErrParseFile},
 		},
 		{
-			name:     "rejects json root array",
-			path1:    writeTempFile(t, dir, "array.json", `[1,2]`),
+			name:     "rejects unparsable yaml content in second file",
+			path1:    validYML,
+			path2:    invalidYML,
+			wantErrs: []error{ErrParseFile},
+		},
+		{
+			name:     "rejects json root array in first file",
+			path1:    arrayJSON,
 			path2:    validJSON,
 			wantErrs: []error{ErrInvalidRoot},
 		},
 		{
-			name:     "rejects yaml root sequence",
-			path1:    writeTempFile(t, dir, "array.yml", "- a\n- b\n"),
+			name:     "rejects json root array in second file",
+			path1:    validJSON,
+			path2:    arrayJSON,
+			wantErrs: []error{ErrInvalidRoot},
+		},
+		{
+			name:     "rejects yaml root sequence in first file",
+			path1:    arrayYML,
 			path2:    validYML,
 			wantErrs: []error{ErrInvalidRoot},
 		},
 		{
-			name:     "rejects unreadable file",
+			name:     "rejects yaml root sequence in second file",
+			path1:    validYML,
+			path2:    arrayYML,
+			wantErrs: []error{ErrInvalidRoot},
+		},
+		{
+			name:     "rejects unreadable first file",
 			path1:    unreadable,
 			path2:    validJSON,
 			wantErrs: []error{ErrReadFile, os.ErrPermission},
 		},
 		{
-			name:     "rejects missing file",
+			name:     "rejects unreadable second file",
+			path1:    validJSON,
+			path2:    unreadable,
+			wantErrs: []error{ErrReadFile, os.ErrPermission},
+		},
+		{
+			name:     "rejects missing first file",
 			path1:    filepath.Join(dir, "missing.json"),
 			path2:    validJSON,
+			wantErrs: []error{ErrReadFile, os.ErrNotExist},
+		},
+		{
+			name:     "rejects missing second file",
+			path1:    validJSON,
+			path2:    filepath.Join(dir, "missing.json"),
 			wantErrs: []error{ErrReadFile, os.ErrNotExist},
 		},
 	}

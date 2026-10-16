@@ -113,6 +113,57 @@ func TestFormatters(t *testing.T) {
 	}
 }
 
+func TestFormattersPanicOnUnknownStatus(t *testing.T) {
+	testCases := []struct {
+		name      string
+		format    string
+		status    diff.Status
+		wantPanic string
+	}{
+		{
+			name:      "stylish names itself and the unknown status",
+			format:    FormatStylish,
+			status:    diff.Status("renamed"),
+			wantPanic: `stylish: unknown status "renamed"`,
+		},
+		{
+			name:      "plain names itself and the unknown status",
+			format:    FormatPlain,
+			status:    diff.Status("renamed"),
+			wantPanic: `plain: unknown status "renamed"`,
+		},
+		{
+			name:      "json names itself and the unknown status",
+			format:    FormatJSON,
+			status:    diff.Status("renamed"),
+			wantPanic: `json: unknown status "renamed"`,
+		},
+		{
+			name:      "quotes keep an empty status visible",
+			format:    FormatStylish,
+			status:    diff.Status(""),
+			wantPanic: `stylish: unknown status ""`,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			tree := &diff.Node{
+				Status:   diff.StatusRoot,
+				Children: []*diff.Node{{Key: "host", Status: tc.status, NewValue: "hexlet.io"}},
+			}
+
+			formatter, err := NewFormatter(tc.format)
+			require.NoError(t, err)
+
+			assert.PanicsWithValue(t, tc.wantPanic, func() {
+				_, err := formatter.Format(tree)
+				assert.NoError(t, err)
+			})
+		})
+	}
+}
+
 func buildDiffTree(t *testing.T, beforeFile, afterFile string) *diff.Node {
 	t.Helper()
 

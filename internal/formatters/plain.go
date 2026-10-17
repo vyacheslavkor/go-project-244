@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+const (
+	plainMsgAdded   = "Property '%s%s' was added with value: %s"
+	plainMsgRemoved = "Property '%s%s' was removed"
+	plainMsgUpdated = "Property '%s%s' was updated. From %s to %s"
+)
+
 type plainFormatter struct{}
 
 func (f plainFormatter) Format(root *diff.Node) (string, error) {
@@ -19,11 +25,14 @@ func formatPlain(nodes []*diff.Node, path string) string {
 	for _, node := range nodes {
 		switch node.Status {
 		case diff.StatusAdded:
-			lines = append(lines, fmt.Sprintf("Property '%s%s' was added with value: %s", path, node.Key, formatValueToPlain(node.NewValue)))
+			formattedValue := formatValueToPlain(node.NewValue)
+			lines = append(lines, fmt.Sprintf(plainMsgAdded, path, node.Key, formattedValue))
 		case diff.StatusRemoved:
-			lines = append(lines, fmt.Sprintf("Property '%s%s' was removed", path, node.Key))
+			lines = append(lines, fmt.Sprintf(plainMsgRemoved, path, node.Key))
 		case diff.StatusUpdated:
-			lines = append(lines, fmt.Sprintf("Property '%s%s' was updated. From %s to %s", path, node.Key, formatValueToPlain(node.OldValue), formatValueToPlain(node.NewValue)))
+			formattedOldValue := formatValueToPlain(node.OldValue)
+			formattedNewValue := formatValueToPlain(node.NewValue)
+			lines = append(lines, fmt.Sprintf(plainMsgUpdated, path, node.Key, formattedOldValue, formattedNewValue))
 		case diff.StatusUnchanged:
 			continue
 		case diff.StatusNested:

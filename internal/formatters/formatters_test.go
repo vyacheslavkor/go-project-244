@@ -196,8 +196,12 @@ func loadMapFixture(t *testing.T, name string) map[string]any {
 func readFixture(t *testing.T, name string) string {
 	t.Helper()
 
-	content, err := os.ReadFile(filepath.Clean(filepath.Join("testdata", "fixture", name)))
+	content, err := os.ReadFile(filepath.Clean(filepath.Join(getFixturePath(), name)))
 	require.NoError(t, err)
 
 	return strings.TrimSpace(string(content))
+}
+
+func getFixturePath() string {
+	return filepath.Join("testdata", "fixture")
 }

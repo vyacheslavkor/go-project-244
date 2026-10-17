@@ -80,7 +80,7 @@ func setupCommandFixtures(t *testing.T) commandFixtures {
 func TestNewCommandSuccess(t *testing.T) {
 	f := setupCommandFixtures(t)
 
-	cases := []struct {
+	testCases := []struct {
 		name       string
 		args       []string
 		wantStdout string
@@ -147,7 +147,7 @@ func TestNewCommandSuccess(t *testing.T) {
 		},
 	}
 
-	for _, tc := range cases {
+	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			stdout, stderr, err := runCommand(t, tc.args...)
 			assert.NoError(t, err)
@@ -160,7 +160,7 @@ func TestNewCommandSuccess(t *testing.T) {
 func TestNewCommandUsageErrors(t *testing.T) {
 	f := setupCommandFixtures(t)
 
-	cases := []struct {
+	testCases := []struct {
 		name       string
 		args       []string
 		wantStdout string
@@ -202,7 +202,6 @@ func TestNewCommandUsageErrors(t *testing.T) {
 			wantStdout: f.help,
 			wantStderr: fmt.Sprintf("incorrect usage: unsupported extension: '.txt' for file '%s'\n", f.txt2),
 		},
-
 		{
 			name:       "rejects empty first file as usage error",
 			args:       []string{f.emptyJSON, f.json2},
@@ -265,7 +264,7 @@ func TestNewCommandUsageErrors(t *testing.T) {
 		},
 	}
 
-	for _, tc := range cases {
+	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			stdout, stderr, err := runCommand(t, tc.args...)
 			assert.Error(t, err)
@@ -278,7 +277,7 @@ func TestNewCommandUsageErrors(t *testing.T) {
 func TestNewCommandOperationalErrors(t *testing.T) {
 	f := setupCommandFixtures(t)
 
-	cases := []struct {
+	testCases := []struct {
 		name       string
 		args       []string
 		wantStderr string
@@ -311,7 +310,7 @@ func TestNewCommandOperationalErrors(t *testing.T) {
 		},
 	}
 
-	for _, tc := range cases {
+	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			stdout, stderr, err := runCommand(t, tc.args...)
 			assert.Error(t, err)

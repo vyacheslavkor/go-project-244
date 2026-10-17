@@ -91,10 +91,12 @@ func exitCode(t *testing.T, err error) int {
 func readHelpFixture(t *testing.T) string {
 	t.Helper()
 
-	content, err := os.ReadFile(filepath.Clean(filepath.Join(
-		"..", "..", "internal", "cli", "testdata", "fixture", "help.txt",
-	)))
+	content, err := os.ReadFile(filepath.Clean(filepath.Join(getFixturePath(), "help.txt")))
 	require.NoError(t, err)
 
 	return strings.TrimSpace(string(content))
+}
+
+func getFixturePath() string {
+	return filepath.Join("..", "..", "internal", "cli", "testdata", "fixture")
 }

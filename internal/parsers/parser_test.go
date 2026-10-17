@@ -148,7 +148,7 @@ nested:
 		require.Nil(t, got)
 	})
 
-	t.Run("the time is parsed as a string", func(t *testing.T) {
+	t.Run("normalizes a timestamp to a string", func(t *testing.T) {
 		got, err := parseFile(p, "file.yml", []byte("released: 2023-01-01\n"))
 		require.NoError(t, err)
 		require.Equal(t, map[string]any{
@@ -237,7 +237,7 @@ func TestParseFiles(t *testing.T) {
 	}
 }
 
-func TestParseFiles_Errors(t *testing.T) {
+func TestParseFilesErrors(t *testing.T) {
 	dir := t.TempDir()
 
 	validJSON := writeTempFile(t, dir, "valid.json", `{"ok":true}`)
@@ -528,38 +528,38 @@ func TestDescribeRootKind(t *testing.T) {
 	}
 }
 
-func TestParseFile_normalizesValues(t *testing.T) {
-	val := map[string]any{
-		"uint":     uint64(1),
-		"uint_max": uint64(18446744073709551615),
-		"nested": map[string]any{
-			"int":      int(2),
-			"released": time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
-			"updated":  time.Date(2023, 1, 1, 15, 4, 5, 0, time.UTC),
-		},
-		"list": []any{
-			uint64(18446744073709551615),
-			time.Date(2023, 1, 1, 15, 4, 5, 0, time.UTC),
-		},
-	}
+func TestParseFileNormalizesValues(t *testing.T) {
+	t.Run("converts integers and timestamps at every depth", func(t *testing.T) {
+		p := fakeParser{value: map[string]any{
+			"uint":     uint64(1),
+			"uint_max": uint64(18446744073709551615),
+			"nested": map[string]any{
+				"int":      int(2),
+				"released": time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+				"updated":  time.Date(2023, 1, 1, 15, 4, 5, 0, time.UTC),
+			},
+			"list": []any{
+				uint64(18446744073709551615),
+				time.Date(2023, 1, 1, 15, 4, 5, 0, time.UTC),
+			},
+		}}
 
-	p := fakeParser{value: val}
-
-	got, err := parseFile(p, "fake", []byte(`{"fake": "fake"}`))
-	require.NoError(t, err)
-	require.Equal(t, map[string]any{
-		"uint":     float64(1),
-		"uint_max": float64(18446744073709551616),
-		"nested": map[string]any{
-			"int":      float64(2),
-			"released": "2023-01-01",
-			"updated":  "2023-01-01 15:04:05",
-		},
-		"list": []any{
-			float64(18446744073709551616),
-			"2023-01-01 15:04:05",
-		},
-	}, got)
+		got, err := parseFile(p, "fake", []byte(`{"fake": "fake"}`))
+		require.NoError(t, err)
+		require.Equal(t, map[string]any{
+			"uint":     float64(1),
+			"uint_max": float64(18446744073709551616),
+			"nested": map[string]any{
+				"int":      float64(2),
+				"released": "2023-01-01",
+				"updated":  "2023-01-01 15:04:05",
+			},
+			"list": []any{
+				float64(18446744073709551616),
+				"2023-01-01 15:04:05",
+			},
+		}, got)
+	})
 
 	t.Run("keeps every part of a timestamp that tells two values apart", func(t *testing.T) {
 		testCases := []struct {
@@ -606,7 +606,7 @@ func TestParseFile_normalizesValues(t *testing.T) {
 	})
 }
 
-func TestParseFile_normalizesDateLikeStrings(t *testing.T) {
+func TestParseFileNormalizesDateLikeStrings(t *testing.T) {
 	testCases := []struct {
 		name string
 		val  string

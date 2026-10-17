@@ -25,11 +25,14 @@ type Formatter interface {
 // ([FormatStylish], [FormatPlain], or [FormatJSON]).
 // An empty format is treated as [FormatStylish].
 //
-// No-diff rendering:
+// Empty document rendering (both roots have no properties):
 //   - stylish: pretty-printed empty object "{}"
 //   - plain: empty string
-//   - json: compact single-line root object; "children" omitted when empty;
-//     unchanged nodes are included when present
+//   - json: compact single-line root object with "children" omitted
+//
+// Identical files are a different case, and not a special one: every property
+// is unchanged, so stylish renders the whole tree, json renders the full
+// "children" list of unchanged nodes, and plain renders an empty string.
 func NewFormatter(format string) (Formatter, error) {
 	if format == "" {
 		format = FormatStylish

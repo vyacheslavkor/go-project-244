@@ -63,6 +63,13 @@ func TestFormatters(t *testing.T) {
 			wantFile:   "expected_stylish_empty.txt",
 		},
 		{
+			name:       "stylish renders unchanged nested tree in full",
+			format:     "stylish",
+			beforeFile: "unchanged_nested.json",
+			afterFile:  "unchanged_nested.json",
+			wantFile:   "expected_stylish_unchanged.txt",
+		},
+		{
 			name:       "plain renders changed properties and skips unchanged",
 			format:     "plain",
 			beforeFile: "sample_before.json",
@@ -96,6 +103,13 @@ func TestFormatters(t *testing.T) {
 			beforeFile: "empty.json",
 			afterFile:  "empty.json",
 			wantFile:   "expected_json_empty.txt",
+		},
+		{
+			name:       "json renders unchanged nested tree with full children",
+			format:     "json",
+			beforeFile: "unchanged_nested.json",
+			afterFile:  "unchanged_nested.json",
+			wantFile:   "expected_json_unchanged.txt",
 		},
 	}
 

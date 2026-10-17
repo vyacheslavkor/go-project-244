@@ -57,14 +57,14 @@ func buildChildren(before, after map[string]any) []*Node {
 	return children
 }
 
-func sortedUnionKeys(a, b map[string]any) []string {
-	seen := make(map[string]struct{}, len(a)+len(b))
+func sortedUnionKeys(before, after map[string]any) []string {
+	seen := make(map[string]struct{}, len(before)+len(after))
 
-	for k := range a {
+	for k := range before {
 		seen[k] = struct{}{}
 	}
 
-	for k := range b {
+	for k := range after {
 		seen[k] = struct{}{}
 	}
 

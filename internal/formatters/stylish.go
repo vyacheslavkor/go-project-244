@@ -35,17 +35,17 @@ func formatStylish(nodes []*diff.Node, depth int) string {
 
 		switch node.Status {
 		case diff.StatusRemoved:
-			lines = append(lines, formatLine(prefix, "- ", node.Key, formatStylishValue(node.OldValue, depth)))
+			lines = append(lines, stylishLine(prefix, "- ", node.Key, formatValueToStylish(node.OldValue, depth)))
 		case diff.StatusAdded:
-			lines = append(lines, formatLine(prefix, "+ ", node.Key, formatStylishValue(node.NewValue, depth)))
+			lines = append(lines, stylishLine(prefix, "+ ", node.Key, formatValueToStylish(node.NewValue, depth)))
 		case diff.StatusUpdated:
-			removedLine := formatLine(prefix, "- ", node.Key, formatStylishValue(node.OldValue, depth))
-			addedLine := formatLine(prefix, "+ ", node.Key, formatStylishValue(node.NewValue, depth))
+			removedLine := stylishLine(prefix, "- ", node.Key, formatValueToStylish(node.OldValue, depth))
+			addedLine := stylishLine(prefix, "+ ", node.Key, formatValueToStylish(node.NewValue, depth))
 			lines = append(lines, fmt.Sprintf("%s\n%s", removedLine, addedLine))
 		case diff.StatusUnchanged:
-			lines = append(lines, formatLine(prefix, "", node.Key, formatStylishValue(node.NewValue, depth)))
+			lines = append(lines, stylishLine(prefix, "", node.Key, formatValueToStylish(node.NewValue, depth)))
 		case diff.StatusNested:
-			lines = append(lines, formatLine(prefix, "", node.Key, formatStylish(node.Children, depth+1)))
+			lines = append(lines, stylishLine(prefix, "", node.Key, formatStylish(node.Children, depth+1)))
 		default:
 			panic(fmt.Sprintf("stylish: unknown status %q", node.Status))
 		}
@@ -69,11 +69,11 @@ func stylishClosingBrace(depth int) string {
 	return strings.Repeat(" ", indentStep*(depth-1))
 }
 
-func formatLine(indent, sign, key, value string) string {
+func stylishLine(indent, sign, key, value string) string {
 	return fmt.Sprintf("%s%s%s: %s", indent, sign, key, value)
 }
 
-func toString(val any) string {
+func formatStylishScalar(val any) string {
 	switch v := val.(type) {
 	case nil:
 		return "null"
@@ -88,18 +88,18 @@ func toString(val any) string {
 	}
 }
 
-func formatStylishValue(v any, depth int) string {
+func formatValueToStylish(v any, depth int) string {
 	switch value := v.(type) {
 	case map[string]any:
-		return formatMap(value, depth)
+		return formatStylishMap(value, depth)
 	case []any:
-		return formatSlice(value, depth)
+		return formatStylishSlice(value, depth)
 	default:
-		return toString(v)
+		return formatStylishScalar(v)
 	}
 }
 
-func formatSlice(items []any, depth int) string {
+func formatStylishSlice(items []any, depth int) string {
 	childDepth := depth + 1
 
 	lines := make([]string, 0, len(items)+2)
@@ -107,7 +107,7 @@ func formatSlice(items []any, depth int) string {
 
 	itemIndent := strings.Repeat(" ", indentStep*childDepth)
 	for _, item := range items {
-		lines = append(lines, itemIndent+formatStylishValue(item, childDepth))
+		lines = append(lines, itemIndent+formatValueToStylish(item, childDepth))
 	}
 
 	lines = append(lines, stylishClosingBrace(childDepth)+"]")
@@ -115,7 +115,7 @@ func formatSlice(items []any, depth int) string {
 	return strings.Join(lines, "\n")
 }
 
-func formatMap(m map[string]any, depth int) string {
+func formatStylishMap(m map[string]any, depth int) string {
 	childDepth := depth + 1
 
 	keys := make([]string, 0, len(m))
@@ -129,7 +129,7 @@ func formatMap(m map[string]any, depth int) string {
 
 	keyIndent := strings.Repeat(" ", indentStep*childDepth)
 	for _, k := range keys {
-		lines = append(lines, formatLine(keyIndent, "", k, formatStylishValue(m[k], childDepth)))
+		lines = append(lines, stylishLine(keyIndent, "", k, formatValueToStylish(m[k], childDepth)))
 	}
 
 	lines = append(lines, stylishClosingBrace(childDepth)+"}")

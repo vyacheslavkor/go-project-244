@@ -32,7 +32,10 @@ func formatPlain(nodes []*diff.Node, path string) string {
 		case diff.StatusUpdated:
 			formattedOldValue := formatValueToPlain(node.OldValue)
 			formattedNewValue := formatValueToPlain(node.NewValue)
-			lines = append(lines, fmt.Sprintf(plainMsgUpdated, path, node.Key, formattedOldValue, formattedNewValue))
+			lines = append(
+				lines,
+				fmt.Sprintf(plainMsgUpdated, path, node.Key, formattedOldValue, formattedNewValue),
+			)
 		case diff.StatusUnchanged:
 			continue
 		case diff.StatusNested:

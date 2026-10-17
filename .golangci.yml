@@ -8,10 +8,14 @@ formatters:
   enable:
     - gofumpt
     - goimports
+    - golines
 
   settings:
     gofumpt:
       extra-rules: true
+    golines:
+      max-len: 120
+      tab-len: 4
 
 linters:
   enable:
@@ -36,6 +40,7 @@ linters:
     - noctx
     - misspell
     - funlen
+    - lll
     - dupl
     - whitespace
 
@@ -64,6 +69,9 @@ linters:
     funlen:
       lines: 100
       statements: 50
+    lll:
+      line-length: 120
+      tab-width: 4
     exhaustive:
       default-signifies-exhaustive: true
       default-case-required: true

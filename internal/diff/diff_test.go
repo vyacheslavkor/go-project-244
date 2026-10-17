@@ -65,7 +65,12 @@ func TestBuild(t *testing.T) {
 		NewValue: nil,
 		Children: []*Node{
 			{Key: "added", Status: StatusAdded, NewValue: "hi"},
-			{Key: "map_to_scalar", Status: StatusUpdated, OldValue: map[string]any{"inner": "value"}, NewValue: "plain"},
+			{
+				Key:      "map_to_scalar",
+				Status:   StatusUpdated,
+				OldValue: map[string]any{"inner": "value"},
+				NewValue: "plain",
+			},
 			{Key: "nested", Status: StatusNested, OldValue: nil, NewValue: nil, Children: []*Node{
 				{Key: "change", Status: StatusUpdated, OldValue: "old", NewValue: "new"},
 				{Key: "fresh", Status: StatusAdded, NewValue: float64(2)},
@@ -75,7 +80,12 @@ func TestBuild(t *testing.T) {
 			{Key: "removed", Status: StatusRemoved, OldValue: "bye"},
 			{Key: "scalar_to_map", Status: StatusAdded, NewValue: map[string]any{"inner": "value"}},
 			{Key: "unchanged_bool", Status: StatusUnchanged, OldValue: true, NewValue: true},
-			{Key: "unchanged_list", Status: StatusUnchanged, OldValue: []any{"a", float64(1), false}, NewValue: []any{"a", float64(1), false}},
+			{
+				Key:      "unchanged_list",
+				Status:   StatusUnchanged,
+				OldValue: []any{"a", float64(1), false},
+				NewValue: []any{"a", float64(1), false},
+			},
 			{Key: "unchanged_null", Status: StatusUnchanged, OldValue: nil, NewValue: nil},
 			{Key: "unchanged_number", Status: StatusUnchanged, OldValue: float64(42), NewValue: float64(42)},
 			{Key: "unchanged_string", Status: StatusUnchanged, OldValue: "hello", NewValue: "hello"},

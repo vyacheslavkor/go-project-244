@@ -59,7 +59,12 @@ func buildBinary(t *testing.T) string {
 	return compiledPath
 }
 
-func runBinary(t *testing.T, ctx context.Context, compiledPath string, args ...string) (stdout, stderr string, err error) {
+func runBinary(
+	t *testing.T,
+	ctx context.Context,
+	compiledPath string,
+	args ...string,
+) (stdout, stderr string, err error) {
 	t.Helper()
 
 	//nolint:gosec // G204: paths are controlled by the test, no risk of command injection

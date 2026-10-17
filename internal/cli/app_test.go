@@ -14,6 +14,9 @@ import (
 	urfave "github.com/urfave/cli/v3"
 )
 
+const wantInvalidRootStderr = "incorrect usage: file '%s': " +
+	"root value must be a JSON object or a YAML mapping with string keys: got array\n"
+
 type commandFixtures struct {
 	json1, json2    string
 	yml1, yml2      string
@@ -228,37 +231,25 @@ func TestNewCommandUsageErrors(t *testing.T) {
 			name:       "rejects json root array in first file as usage error",
 			args:       []string{f.arrayJSON, f.json2},
 			wantStdout: f.help,
-			wantStderr: fmt.Sprintf(
-				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping with string keys: got array\n",
-				f.arrayJSON,
-			),
+			wantStderr: fmt.Sprintf(wantInvalidRootStderr, f.arrayJSON),
 		},
 		{
 			name:       "rejects json root array in second file as usage error",
 			args:       []string{f.json1, f.arrayJSON},
 			wantStdout: f.help,
-			wantStderr: fmt.Sprintf(
-				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping with string keys: got array\n",
-				f.arrayJSON,
-			),
+			wantStderr: fmt.Sprintf(wantInvalidRootStderr, f.arrayJSON),
 		},
 		{
 			name:       "rejects yaml root sequence in first file as usage error",
 			args:       []string{f.arrayYML, f.yml2},
 			wantStdout: f.help,
-			wantStderr: fmt.Sprintf(
-				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping with string keys: got array\n",
-				f.arrayYML,
-			),
+			wantStderr: fmt.Sprintf(wantInvalidRootStderr, f.arrayYML),
 		},
 		{
 			name:       "rejects yaml root sequence in second file as usage error",
 			args:       []string{f.yml1, f.arrayYML},
 			wantStdout: f.help,
-			wantStderr: fmt.Sprintf(
-				"incorrect usage: file '%s': root value must be a JSON object or a YAML mapping with string keys: got array\n",
-				f.arrayYML,
-			),
+			wantStderr: fmt.Sprintf(wantInvalidRootStderr, f.arrayYML),
 		},
 		{
 			name:       "rejects unknown flag",

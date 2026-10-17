@@ -9,13 +9,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-// NewCommand builds the gendiff CLI command with flags and actions.
-func NewCommand() *cli.Command {
-	return &cli.Command{
-		Name:      "gendiff",
-		Usage:     "Compares two configuration files and shows a difference.",
-		ArgsUsage: "<filepath1> <filepath2>",
-		Description: `Compare two configuration files and print their difference.
+const commandDescription = `Compare two configuration files and print their difference.
 
 Arguments:
   <filepath1>, <filepath2>  Paths to existing non-empty regular files. Exactly two
@@ -69,7 +63,15 @@ malformed content) print only the reason on stderr.
 Examples:
   gendiff file1.json file2.json
   gendiff -f plain a.yml b.yaml
-  gendiff --format=json before.json after.json`,
+  gendiff --format=json before.json after.json`
+
+// NewCommand builds the gendiff CLI command with flags and actions.
+func NewCommand() *cli.Command {
+	return &cli.Command{
+		Name:        "gendiff",
+		Usage:       "Compares two configuration files and shows a difference.",
+		ArgsUsage:   "<filepath1> <filepath2>",
+		Description: commandDescription,
 		Action: func(_ context.Context, cmd *cli.Command) error {
 			const expectedArgsCount = 2
 			if cmd.Args().Len() != expectedArgsCount {

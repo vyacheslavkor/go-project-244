@@ -34,10 +34,15 @@ import (
 // format selects the output style: [FormatStylish], [FormatPlain], or
 // [FormatJSON]. An empty format is treated as [FormatStylish].
 //
-// When there are no differences:
-//   - stylish renders a pretty-printed empty object;
-//   - plain returns an empty string (no property lines; the CLI prints nothing);
-//   - json emits a compact single-line root object; "children" is omitted when empty.
+// Identical files are not a special case: stylish returns the whole tree with
+// every property unchanged, json returns the full "children" list of unchanged
+// nodes, and plain returns an empty string, because it skips unchanged
+// properties.
+//
+// A document with no properties (both roots are empty) gives an empty tree:
+// stylish returns a pretty-printed empty object, json returns a compact
+// single-line root object with "children" omitted, and plain returns an empty
+// string. An empty file is a different case and is rejected ([ErrEmptyFile]).
 //
 // JSON output shape (compact single-line machine-readable format):
 //

@@ -66,11 +66,15 @@ The utility expects exactly two arguments: paths to the files being compared. By
 
 ### Output Formats
 
-| Format | Description |
-| :--- | :--- |
-| `stylish` | Nested tree with `+` / `-` markers (default). No changes: pretty-printed empty object `{}`. |
-| `plain` | Line-oriented human-readable messages (skips unchanged properties). No changes: empty output (nothing is printed). Complex values are shown as `[complex value]`. |
-| `json` | Compact single-line JSON tree of changes. Envelope: `{"key":"","status":"root","children":[...]}` (`children` omitted when empty). Node fields: `key`, `status`, `old_value?`, `value?`, `children?`. Node statuses: `root` (document root, empty key), `added`, `removed`, `updated`, `nested`, `unchanged`. Unchanged nodes are included. |
+| Format    | Description                                                                                                                                                                                                                                                                                                                                   |
+|:----------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `stylish` | Nested tree with `+` / `-` markers (default).                                                                                                                                                                                                                                                                                                 |
+| `plain`   | Line-oriented human-readable messages (skips unchanged properties). Complex values are shown as `[complex value]`.                                                                                                                                                                                                                            |
+| `json`    | Compact single-line JSON tree. Envelope: `{"key":"","status":"root","children":[...]}` (`children` omitted when there are no nodes). Node fields: `key`, `status`, `old_value?`, `value?`, `children?`. Node statuses: `root` (document root, empty key), `added`, `removed`, `updated`, `nested`, `unchanged`. Unchanged nodes are included. |
+
+Identical files are not a special case: `stylish` prints the whole tree with every property unchanged, `json` prints the full `children` list of `unchanged` nodes, and `plain` prints nothing, because it skips unchanged properties.
+
+A document with no properties (both roots are `{}`) gives an empty tree: `stylish` prints a pretty-printed empty object `{}`, `json` prints `{"key":"","status":"root"}` with `children` omitted, and `plain` prints nothing. An empty *file* is a different case and is rejected (see Input Rules).
 
 Numbers are printed in positional notation in every format: a file that says `1000000` shows `1000000`, never `1e+06`. A value looks the same whichever `--format` is selected.
 

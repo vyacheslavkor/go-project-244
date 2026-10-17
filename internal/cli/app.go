@@ -25,7 +25,9 @@ Input formats:
   JSON  (.json)
   YAML  (.yml, .yaml)
 
-The parser is chosen by file extension, not by inspecting the file.
+The two files need not be in the same format; each one is parsed by its
+own extension. The parser is chosen by extension, not by inspecting the
+file.
 
 Value comparison:
   Values are compared in a normalized form, so the same value written
@@ -45,16 +47,23 @@ Value rendering:
 
 Output formats (--format / -f):
   stylish  Nested tree with +/- markers (default).
-           No changes: pretty-printed empty object.
   plain    Line-oriented human-readable messages (skips unchanged).
-           No changes: empty output (nothing is printed).
-  json     Compact single-line JSON tree of changes.
+  json     Compact single-line JSON tree.
            Envelope: {"key":"","status":"root","children":[...]}.
            Field "children" is omitted when there are no nodes.
            Node fields: key, status, old_value?, value?, children?.
            Node statuses: root (document root, empty key),
            added, removed, updated, nested, unchanged.
            Unchanged nodes are included.
+
+Identical files are not a special case: stylish prints the whole tree with
+every property unchanged, json prints the full "children" list of unchanged
+nodes, and plain prints nothing, because it skips unchanged properties.
+
+A document with no properties (both roots are {}) gives an empty tree:
+stylish prints a pretty-printed empty object, json prints
+{"key":"","status":"root"} with "children" omitted, and plain prints
+nothing. An empty file is a different case and is rejected.
 
 Usage errors (wrong args/flags/input contract) print this help on stdout
 and a reason on stderr. Operational errors (missing/unreadable files,

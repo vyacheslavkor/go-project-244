@@ -83,14 +83,20 @@ func NewCommand() *cli.Command {
 		Description: commandDescription,
 		Action: func(_ context.Context, cmd *cli.Command) error {
 			const expectedArgsCount = 2
-			if cmd.Args().Len() != expectedArgsCount {
-				return newArgumentsCountError(cmd, expectedArgsCount, cmd.Args().Len())
+
+			argsCount := cmd.Args().Len()
+			if argsCount != expectedArgsCount {
+				return usageError(cmd, fmt.Errorf("expected %d arguments, got %d", expectedArgsCount, argsCount))
 			}
 
 			beforePath, afterPath := cmd.Args().Get(0), cmd.Args().Get(1)
 			out, err := code.GenDiff(beforePath, afterPath, cmd.String("format"))
 			if err != nil {
-				return returnError(err, cmd)
+				if isUsageError(err) {
+					return usageError(cmd, err)
+				}
+
+				return err
 			}
 
 			if out != "" {
@@ -103,9 +109,7 @@ func NewCommand() *cli.Command {
 			return nil
 		},
 		OnUsageError: func(_ context.Context, cmd *cli.Command, err error, _ bool) error {
-			cli.ShowAppHelp(cmd)
-
-			return cli.Exit(fmt.Sprintf("incorrect usage: %v", err), 1)
+			return usageError(cmd, err)
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -119,23 +123,10 @@ func NewCommand() *cli.Command {
 	}
 }
 
-func newArgumentsCountError(cmd *cli.Command, expected, got int) error {
+func usageError(cmd *cli.Command, reason error) error {
 	cli.ShowAppHelp(cmd)
 
-	return cli.Exit(
-		fmt.Sprintf("incorrect usage: expected %d arguments, got %d", expected, got),
-		1,
-	)
-}
-
-func returnError(err error, cmd *cli.Command) error {
-	if !isUsageError(err) {
-		return err
-	}
-
-	cli.ShowAppHelp(cmd)
-
-	return cli.Exit(fmt.Sprintf("incorrect usage: %v", err), 1)
+	return cli.Exit(fmt.Sprintf("incorrect usage: %v", reason), 1)
 }
 
 func isUsageError(err error) bool {

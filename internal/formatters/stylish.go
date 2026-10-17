@@ -88,14 +88,14 @@ func formatStylishScalar(val any) string {
 	}
 }
 
-func formatValueToStylish(v any, depth int) string {
-	switch value := v.(type) {
+func formatValueToStylish(val any, depth int) string {
+	switch v := val.(type) {
 	case map[string]any:
-		return formatStylishMap(value, depth)
+		return formatStylishMap(v, depth)
 	case []any:
-		return formatStylishSlice(value, depth)
+		return formatStylishSlice(v, depth)
 	default:
-		return formatStylishScalar(v)
+		return formatStylishScalar(val)
 	}
 }
 

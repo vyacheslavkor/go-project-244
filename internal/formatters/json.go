@@ -90,9 +90,9 @@ func formatJSONSlice(items []any) []any {
 	return result
 }
 
-func formatJSONMap(items map[string]any) map[string]any {
-	result := make(map[string]any, len(items))
-	for key, value := range items {
+func formatJSONMap(m map[string]any) map[string]any {
+	result := make(map[string]any, len(m))
+	for key, value := range m {
 		result[key] = formatValueToJSON(value)
 	}
 

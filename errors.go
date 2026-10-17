@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	// ErrInvalidFormat is returned when the output format name is unknown.
+	// ErrInvalidFormat is returned when the requested output format is unknown.
 	ErrInvalidFormat = formatters.ErrInvalidFormat
 	// ErrFormatOutput is returned when the difference tree cannot be rendered as output.
 	ErrFormatOutput = formatters.ErrFormatOutput

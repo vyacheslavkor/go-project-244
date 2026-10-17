@@ -80,6 +80,9 @@ Numbers are printed in positional notation in every format: a file that says `10
 
 ### Examples
 
+All three examples compare the same pair of files, `file1.json` and `file2.json`,
+taken from `internal/cli/testdata/fixture/`.
+
 **1. Stylish format (default):**
 ```bash
 $ ./bin/gendiff file1.json file2.json
@@ -102,6 +105,8 @@ $ ./bin/gendiff file1.json file2.json
             key: value
           + ops: vops
         }
+      - timeout: 1000000
+      + timeout: 123456789
     }
     group1: {
       - baz: bas
@@ -125,6 +130,7 @@ $ ./bin/gendiff file1.json file2.json
             }
         }
         fee: 100500
+        limit: 1000000000000000000000
     }
 }
 ```
@@ -139,6 +145,7 @@ Property 'common.setting4' was added with value: 'blah blah'
 Property 'common.setting5' was added with value: [complex value]
 Property 'common.setting6.doge.wow' was updated. From '' to 'so much'
 Property 'common.setting6.ops' was added with value: 'vops'
+Property 'common.timeout' was updated. From 1000000 to 123456789
 Property 'group1.baz' was updated. From 'bas' to 'bars'
 Property 'group1.nest' was updated. From [complex value] to 'str'
 Property 'group2' was removed
@@ -147,6 +154,6 @@ Property 'group3' was added with value: [complex value]
 
 **3. JSON format:**
 ```bash
-$ ./bin/gendiff --format=json before.json after.json
-{"key":"","status":"root","children":[{"key":"follow","status":"removed","old_value":false},{"key":"host","status":"unchanged","value":"hexlet.io"},{"key":"proxy","status":"removed","old_value":"123.234.53.22"},{"key":"timeout","status":"updated","old_value":50,"value":20},{"key":"verbose","status":"added","value":true}]}
+$ ./bin/gendiff --format=json file1.json file2.json
+{"key":"","status":"root","children":[{"key":"common","status":"nested","children":[{"key":"follow","status":"added","value":false},{"key":"setting1","status":"unchanged","value":"Value 1"},{"key":"setting2","status":"removed","old_value":200},{"key":"setting3","status":"updated","old_value":true,"value":null},{"key":"setting4","status":"added","value":"blah blah"},{"key":"setting5","status":"added","value":{"key5":"value5"}},{"key":"setting6","status":"nested","children":[{"key":"doge","status":"nested","children":[{"key":"wow","status":"updated","old_value":"","value":"so much"}]},{"key":"key","status":"unchanged","value":"value"},{"key":"ops","status":"added","value":"vops"}]},{"key":"timeout","status":"updated","old_value":1000000,"value":123456789}]},{"key":"group1","status":"nested","children":[{"key":"baz","status":"updated","old_value":"bas","value":"bars"},{"key":"foo","status":"unchanged","value":"bar"},{"key":"nest","status":"updated","old_value":{"key":"value"},"value":"str"}]},{"key":"group2","status":"removed","old_value":{"abc":12345,"deep":{"id":45}}},{"key":"group3","status":"added","value":{"deep":{"id":{"number":45}},"fee":100500,"limit":1000000000000000000000}}]}
 ```
